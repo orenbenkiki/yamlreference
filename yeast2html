@@ -1,0 +1,490 @@
+#!/usr/bin/perl -w
+
+# Modules.
+use strict;
+use English;
+use Pod::Usage;
+use Getopt::Long;
+use IO::File;
+
+# YEAST byte codes.
+my $code2class = {
+    U   => { code => 'U', type => 'bom',   title => "Byte order mark" },
+    T   => { code => 'T', type => 'text',  title => "Content text" },
+    t   => { code => 't', type => 'text',  title => "Non-content text" },
+    b   => { code => 'b', type => 'line',  title => "Non-content line break" },
+    L   => { code => 'L', type => 'line',  title => "Line break normalized to line feed" },
+    l   => { code => 'l', type => 'line',  title => "Line break folded to space" },
+    I   => { code => 'I', type => 'text',  title => "Indicator character" },
+    w   => { code => 'w', type => 'text',  title => "Non-content white space" },
+    i   => { code => 'i', type => 'text',  title => "Indentation white space" },
+    K   => { code => 'K', type => 'text',  title => "Directives end marker" },
+    k   => { code => 'k', type => 'text',  title => "Document end marker" },
+    E   => { code => 'E', type => 'begin', title => "Escape sequence" },
+    e   => { code => 'e', type => 'end',   title => "Escape sequence" },
+    C   => { code => 'C', type => 'begin', title => "Comment" },
+    c   => { code => 'c', type => 'end',   title => "Comment" },
+    D   => { code => 'D', type => 'begin', title => "Directive" },
+    d   => { code => 'd', type => 'end',   title => "Directive" },
+    G   => { code => 'G', type => 'begin', title => "Tag" },
+    g   => { code => 'g', type => 'end',   title => "Tag" },
+    H   => { code => 'H', type => 'begin', title => "Handle" },
+    h   => { code => 'h', type => 'end',   title => "Handle" },
+    A   => { code => 'A', type => 'begin', title => "Anchor" },
+    a   => { code => 'a', type => 'end',   title => "Anchor" },
+    P   => { code => 'P', type => 'begin', title => "Properties" },
+    p   => { code => 'p', type => 'end',   title => "Properties" },
+    R   => { code => 'R', type => 'begin', title => "Alias" },
+    r   => { code => 'r', type => 'end',   title => "Alias" },
+    S   => { code => 'S', type => 'begin', title => "Scalar" },
+    s   => { code => 's', type => 'end',   title => "Scalar" },
+    Q   => { code => 'Q', type => 'begin', title => "Sequence" },
+    q   => { code => 'q', type => 'end',   title => "Sequence" },
+    M   => { code => 'M', type => 'begin', title => "Mapping" },
+    m   => { code => 'm', type => 'end',   title => "Mapping" },
+    N   => { code => 'N', type => 'begin', title => "Node" },
+    n   => { code => 'n', type => 'end',   title => "Node" },
+    X   => { code => 'X', type => 'begin', title => "Key:value pair" },
+    x   => { code => 'x', type => 'end',   title => "Key:value pair" },
+    O   => { code => 'O', type => 'begin', title => "Document" },
+    o   => { code => 'o', type => 'end',   title => "Document" },
+    '!' => { code => '!', type => 'error', title => "Error" },
+    '-' => { code => '-', type => 'text',  title => "Unparsed" },
+    '$' => { code => '-', type => 'text',  title => "Detected" },
+    '~' => { code => '~', type => 'text',  title => "Empty" }
+};
+
+# Command line arguments.
+my $output_file = '';
+my $css_file = '';
+my $link_css = '';
+my $output = *STDOUT{IO};
+my $tree_title = 'Syntax Tree';
+my $text_title = 'YAML Text';
+
+# Loaded byte codes.
+my $data = [];
+
+# Tree printing.
+my $next_id;
+
+# Main program.
+parse_argv();
+load_input();
+print_output();
+
+# Functions.
+
+sub parse_argv {
+    my $do_help = "";
+    my $do_man = "";
+    GetOptions("help|h" => \$do_help,
+               "man|m" => \$do_man,
+               "output|o=s" => \$output_file,
+               "css|c=s" => \$css_file,
+               "tree-title|r=s" => \$tree_title,
+               "text-title|x=s" => \$text_title,
+               "link-css|l" => \$link_css)
+        || pod2usage(-verbose => 0);
+    pod2usage(-verbose => 1) if $do_help;
+    pod2usage(-verbose => 2) if $do_man;
+    die("Only one input file, please\n") if @ARGV > 1;
+    die("No CSS file specified to link to\n") if $link_css && !$css_file;
+    if ($output_file) {
+        open ($output, ">$output_file") || die("open(>$output_file): $!");
+    }
+}
+
+sub load_input {
+    my $stack = [];
+    my $has_content = [];
+    my $num = 0;
+    while (my $line = <>) {
+        $num++;
+        chomp($line);
+        die("Line $num is not a byte code line\n")
+            unless $line =~ /^(.)(.*)$/;
+        my $code = $1;
+        my $text = $2;
+        next if $code eq '#';
+        my $class = $code2class->{$code};
+        die("Line $num contains unknown code \"$code\"\n")
+            unless $class;
+        die("Oops!") unless $class->{code} eq $code;
+        if ($class->{type} eq 'bom') {
+            $text = "$code$text";
+        } else {
+            $text =~ s:\\x0[dD]:&crarr;:g;
+            $text =~ s:\\x0[aA]:&darr;:g;
+            $text =~ s:\\x85:&dArr;:g;
+            $text =~ s:\\u2028:&sect;:g;
+            $text =~ s:\\u2029:&para;:g;
+            $text =~ s:\\x09:&rarr;:g;
+            $text =~ s:\t:&rarr;:g;
+            $text =~ s: :&middot;:g;
+            $text =~ s:\\u202F:&diams;:g;
+        }
+        if ($class->{type} eq 'begin') {
+            push(@$stack, [ $num, $class ]);
+            push(@$has_content, 0);
+        } elsif ($class->{type} eq 'end') {
+            my $title = $class->{title};
+            my $had_content = pop(@$has_content);
+            push(@$data, [ $code2class->{'~'}, '&deg;' ]) unless $had_content;
+            for (my $i = 0; $i < @$has_content; $i++) {
+                $has_content->[$i] = 1;
+            }
+            my ($begin_num, $begin_class) = @{pop(@$stack)};
+            my $begin_code = $begin_class->{code};
+            my $begin_title = $begin_class->{title};
+            die("Line $num ($code/$title) "
+              . "ends line $begin_num ($begin_code/$begin_title)\n")
+                if $title ne $begin_title;
+        }
+        push(@$data, [ $class, $text ]);
+        if ($text ne '') {
+            for (my $i = 0; $i < @$has_content; $i++) {
+                $has_content->[$i] = 1;
+            }
+        }
+    }
+    #die("Unterminated groups\n") if @$stack;
+}
+
+sub print_output {
+    print $output <<"EOF";
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC
+ "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>YEAST2HTML</title>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<meta name="generator" content="yeast2html" />
+EOF
+    print_css();
+    print_script();
+    print $output <<"EOF";
+</head>
+<body>
+EOF
+    print_text();
+    print_tree();
+    print $output <<"EOF";
+</body>
+</html>
+EOF
+}
+
+sub print_css {
+    if ($link_css) {
+        print $output "<link rel=\"stylesheet\" href=\"$css_file\" type=\"text/css\" />\n";
+        return;
+    }
+    print $output "<style type=\"text/css\">\n";
+    if ($css_file) {
+        open(CSS, "$css_file") || die("open($css_file): $!\n");
+        while (my $line = <CSS>) {
+            print $output $line;
+        }
+        close(CSS) || die("close($css_file): $!\n");
+    } else {
+        print $output <<"EOF";
+div.tree_div {
+    position: absolute;
+    left: 0%;
+    top: 0%;
+    width: 50%;
+    height: 100%;
+    overflow: scroll;
+}
+div.text_div {
+    position: absolute;
+    left: 50%;
+    top: 0%;
+    width: 50%;
+    height: 100%;
+    overflow: scroll;
+}
+span.highlight {
+    background-color: yellow;
+}
+span.text {
+    font-family: monospace;
+}
+EOF
+    }
+    print $output "</style>\n";
+}
+
+sub print_script {
+    print $output <<"EOF";
+<script language="JavaScript">
+function toggle(id) {
+    var nest_style = document.getElementById("tree_nest_" + id).style;
+    var glyph = document.getElementById("tree_glyph_" + id);
+    if (nest_style.display == "none") {
+        nest_style.display = "block";
+        glyph.innerHTML = "&mdash;";
+    } else {
+        nest_style.display = "none";
+        glyph.innerHTML = "+";
+    }
+}
+var highlighted = 0;
+function highlight(id) {
+    if (highlighted == 0) {
+        var text = document.getElementById("text_" + id);
+        var tree = document.getElementById("tree_text_" + id);
+        text.className = "text highlight";
+        tree.className = "tree_text highlight";
+        highlighted = id;
+    } else if (highlighted == id) {
+        var text = document.getElementById("text_" + id);
+        var tree = document.getElementById("tree_text_" + id);
+        text.className = "text";
+        tree.className = "tree_text";
+        highlighted = 0;
+        return;
+    } else {
+        var old_text = document.getElementById("text_" + highlighted);
+        var old_tree = document.getElementById("tree_text_" + highlighted);
+        var new_text = document.getElementById("text_" + id);
+        var new_tree = document.getElementById("tree_text_" + id);
+        old_text.className = "text";
+        old_tree.className = "tree_text";
+        new_text.className = "text highlight";
+        new_tree.className = "tree_text highlight";
+        highlighted = id;
+    }
+}
+</script>
+EOF
+}
+
+sub print_tree {
+    print $output "<div id=\"tree_div\" class=\"tree_div\">\n";
+    print $output "<h1 id=\"tree_title\" class=\"tree_title\">$tree_title</h1>";
+    $next_id = 0;
+    start_tree_node(0, "Legend");
+    print_legend();
+    end_tree_node();
+    my $depth = 0;
+    for my $entry (@$data) {
+        my ($class, $text) = @$entry;
+        if ($class->{type} eq 'begin') {
+            start_tree_node($depth++, $class->{title});
+        } elsif ($class->{type} eq 'end') {
+            end_tree_node();
+            $depth--;
+        } else {
+            my $label = $class->{title};
+            $label .= " ($text)" if $class->{type} eq 'bom';
+            tree_leaf($depth, $label);
+        }
+    }
+    print $output "</div>\n";
+}
+
+sub start_tree_node {
+    my $depth = shift;
+    my $text = shift;
+    print $output "<div id=\"tree_line_$next_id\" class=\"tree_node parent_node\">\n";
+    for (my $i = 1; $i <= $depth; $i++) {
+        print $output "<span class=\"tree_space parent_node space_$i depth_$depth\">&nbsp;</span>"
+    }
+    print $output "<span id=\"tree_glyph_$next_id\" class=\"tree_glyph parent_node\" onclick=\"toggle($next_id)\">&mdash;</span>";
+    print $output "<span id=\"tree_text_$next_id\" class=\"tree_text parent_node"
+                . ($next_id > 0 ? "" : " legend_node")
+                . "\" onclick=\"highlight($next_id)\">$text</span>\n";
+    print $output "<div id=\"tree_nest_$next_id\" class=\"tree_nest\">\n";
+    $next_id++;
+}
+
+sub end_tree_node {
+    print $output "</div></div>\n";
+}
+
+sub tree_leaf {
+    my $depth = shift;
+    my $text = shift;
+    print $output "<div id=\"tree_line_$next_id\" class=\"tree_node leaf_node\">\n";
+    for (my $i = 1; $i <= $depth; $i++) {
+        print $output "<span class=\"tree_space leaf_node space_$i depth_$depth\">&nbsp;</span>"
+    }
+    print $output "<span id=\"tree_glyph_$next_id\" class=\"tree_glyph leaf_node\">&middot;</span>";
+    print $output "<span id=\"tree_text_$next_id\" class=\"tree_text leaf_node\" onclick=\"highlight($next_id)\">$text</span>\n";
+    print $output "</div>\n";
+    $next_id++;
+}
+
+sub print_legend {
+    print <<"EOF";
+<table id="legend_table" class="legend_table">
+<tr>
+<td class="legend_space">&nbsp;</td>
+<td class="legend_glyph">&crarr;</td>
+<td class="legend_text">Carriage Return</td>
+</tr>
+<tr>
+<td class="legend_space">&nbsp;</td>
+<td class="legend_glyph">&darr;</td>
+<td class="legend_text">Line Feed</td>
+</tr>
+<tr>
+<td class="legend_space">&nbsp;</td>
+<td class="legend_glyph">&dArr;</td>
+<td class="legend_text">Next Line</td>
+</tr>
+<tr>
+<td class="legend_space">&nbsp;</td>
+<td class="legend_glyph">&sect;</td>
+<td class="legend_text">Line separator</td>
+</tr>
+<tr>
+<td class="legend_space">&nbsp;</td>
+<td class="legend_glyph">&para;</td>
+<td class="legend_text">Paragraph separator</td>
+</tr>
+<tr>
+<td class="legend_space">&nbsp;</td>
+<td class="legend_glyph">&rarr;</td>
+<td class="legend_text">Tab</td>
+</tr>
+<tr>
+<td class="legend_space">&nbsp;</td>
+<td class="legend_glyph">&diams;</td>
+<td class="legend_text">Non-breaking space</td>
+</tr>
+<tr>
+<td class="legend_space">&nbsp;</td>
+<td class="legend_glyph">&middot;</td>
+<td class="legend_text">Space</td>
+</tr>
+<tr>
+<td class="legend_space">&nbsp;</td>
+<td class="legend_glyph">&deg;</td>
+<td class="legend_text">Empty</td>
+</tr>
+<tr>
+<td class="legend_space">&nbsp;</td>
+<td class="legend_glyph">&hArr;</td>
+<td class="legend_text">Byte order mark</td>
+</tr>
+</table>
+EOF
+}
+
+sub print_text {
+    print $output "<div id=\"text_div\" class=\"text_div\">\n";
+    print $output "<h1 id=\"text_title\" class=\"text_title\">$text_title</h1>";
+    $next_id = 1;
+    my $pending_break = 0;
+    for my $entry (@$data) {
+        my ($class, $text) = @$entry;
+        if ($class->{type} eq 'end') {
+            print $output "</span>";
+            next;
+        }
+        if ($pending_break) {
+            print $output "<br/>\n";
+            $pending_break = 0;
+        }
+        print $output "<span id=\"text_$next_id\" class=\"text\"";
+        print " onclick=\"highlight($next_id)\"" unless $class->{type} eq 'begin';
+        print ">";
+        $next_id++;
+        next if $class->{type} eq 'begin';
+        if ($class->{type} eq 'bom') {
+            print $output "&hArr;</span>";
+        } else {
+            print $output "$text</span>";
+        }
+        $pending_break = $class->{type} eq 'line';
+    }
+    print $output "\n</div>\n";
+}
+
+__END__
+
+=head1 NAME
+
+yeast2html - Convert YEAST byte codes to viewable HTML
+
+=head1 SYNOPSIS
+
+yeast2html [options] [yeast-file]
+
+=head1 DESCRIPTION
+
+This Perl script is designed to allow exploring the syntactical structure of
+YAML files in an interactive way. The input file is a sequence of YEAST byte
+codes that describe the YAML text. The output is an XHTML file that allows
+viewing the YAML syntax tree together with the original (reconstructed) YAML
+text.
+
+=head1 COMMAND LINE OPTIONS
+
+=over 4
+
+=item B<--output|-o> I<output-file>
+
+Redirect the output XHTML to the specified I<output-file>. By default the XHTML
+is written to standard output.
+
+=item B<--css|-c> I<css-file>
+
+Use the specified I<css-file> to control the style of the generated XHTML. By
+default, a minimal set of CSS rules is used, which doesn't look very pretty.
+
+=item B<--link-css|-l>
+
+By default, the content of the I<css-file> is embedded in the header of the
+generated XHTML. If this flag is given, this is replaced by a link to the
+I<css-file>. Note that in this case the I<css-file> path must be relative to
+the URL used for the XHTML file.
+
+=item B<--tree-title|-r> I<title>
+
+The title for the tree part of the display. By default, it says "Syntax Tree".
+
+=item B<--text-title|-x> I<title>
+
+The title for the text part of the display. By default, it says "YAML Text".
+
+=item B<--help|-h>
+
+Print short usage message and exit.
+
+=item B<--man|-m>
+
+Print this man page and exit.
+
+=back
+
+=head1 SEE ALSO
+
+L<yaml2yeast>
+
+=head1 AUTHOR
+
+Oren Ben-Kiki <oren@ben-kiki.org>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2007, 2008, 2009 Oren Ben-Kiki
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free
+Software Foundation; either version 2.1 of the License, or (at your option) any
+later version.
+
+This library is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with this library; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA

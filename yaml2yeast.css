@@ -1,0 +1,94 @@
+html {
+    cursor: default;
+}
+h1 {
+    margin-left: 1em;
+}
+td.legend_glyph {
+    text-align: center;
+    border: solid 1px black;
+}
+div.tree_div {
+    position: absolute;
+    left: 0%;
+    top: 0%;
+    width: 50%;
+    height: 100%;
+    overflow: scroll;
+}
+div.text_div {
+    position: absolute;
+    left: 50%;
+    top: 0%;
+    width: 50%;
+    height: 100%;
+    overflow: scroll;
+}
+span.highlight {
+    background-color: yellow;
+}
+span.text {
+    font-family: monospace;
+}
+span.error {
+    background-color: red;
+}
+span.tree_glyph {
+    text-align: center;
+    font-family: monospace;
+    padding-left: 0.25em;
+    padding-right: 0.25em;
+    border: solid 1px black;
+}
+span.tree_glyph.parent_node {
+    cursor: pointer;
+}
+span.tree_text {
+    font-family: sans-serif;
+    margin-left: 0.5em;
+    cursor: pointer;
+}
+span.legend_node {
+    cursor: default;
+}
+span.text {
+    cursor: pointer;
+}
+span.legend_text {
+    font-family: sans-serif;
+}
+table.legend_table {
+    margin-left: 0.25em;
+}
+td.legend_space {
+    padding-right: 0.25em;
+}
+span.tree_space {
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+}
+td.legend_space,
+span.space_1,
+span.space_3,
+span.space_5,
+span.space_7,
+span.space_9,
+span.space_11,
+span.space_13,
+span.space_15,
+span.space_17,
+span.space_19 {
+    border-left: solid 1px green;
+}
+span.space_2,
+span.space_4,
+span.space_6,
+span.space_8,
+span.space_10,
+span.space_12,
+span.space_14,
+span.space_16,
+span.space_18,
+span.space_20 {
+    border-left: solid 1px blue;
+}
