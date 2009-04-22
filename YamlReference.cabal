@@ -107,6 +107,8 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/c-document-end.invalid.input
                      tests/c-document-end.invalid.output
                      tests/c-document-end.output
+                     tests/c-double-quoted.n=0.c=flow-out.input
+                     tests/c-double-quoted.n=0.c=flow-out.output
                      tests/c-double-quoted.n=4.c=flow-out.input
                      tests/c-double-quoted.n=4.c=flow-out.invalid.input
                      tests/c-double-quoted.n=4.c=flow-out.invalid.output
@@ -411,6 +413,8 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/c-s-implicit-json-key.c=flow-key.long.output
                      tests/c-s-implicit-json-key.c=flow-key.short.input
                      tests/c-s-implicit-json-key.c=flow-key.short.output
+                     tests/c-single-quoted.n=0.c=flow-out.input
+                     tests/c-single-quoted.n=0.c=flow-out.output
                      tests/c-single-quoted.n=4.c=flow-out.input
                      tests/c-single-quoted.n=4.c=flow-out.invalid.input
                      tests/c-single-quoted.n=4.c=flow-out.invalid.output

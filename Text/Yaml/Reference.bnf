@@ -321,10 +321,10 @@ s_s_double_break n   {- 112 -} = "escape" ^ ( s_s_double_escaped n / s_s_flow_fo
 
 nb_ns_double_in_line    {- 113 -} = ( ( s_white *) & ns_double_char *)
 s_ns_double_next_line n {- 114 -} = s_s_double_break n
-                                  & ns_double_char & nb_ns_double_in_line
+                                  & ( ns_double_char & nb_ns_double_in_line
+                                    & ( s_ns_double_next_line n / ( s_white *) ) ?)
 nb_double_multi_line n  {- 115 -} = nb_ns_double_in_line
-                                  & ( s_ns_double_next_line n *)
-                                  & ( s_white *)
+                                  & ( s_ns_double_next_line n ?)
 
 -- 7.3.2 Single Quoted Style
 
@@ -346,10 +346,10 @@ nb_single_one_line {- 121 -} = ( nb_single_char *)
 
 nb_ns_single_in_line    {- 122 -} = ( ( s_white *) & ns_single_char *)
 s_ns_single_next_line n {- 123 -} = s_s_flow_folded n
-                                  & ns_single_char & nb_ns_single_in_line
+                                  & ( ns_single_char & nb_ns_single_in_line
+                                    & ( s_ns_single_next_line n / ( s_white *) ) ?)
 nb_single_multi_line n  {- 124 -} = nb_ns_single_in_line
-                                  & ( s_ns_single_next_line n *)
-                                  & ( s_white *)
+                                  & ( s_ns_single_next_line n ?)
 
 -- 7.3.3 Plain Style
 
