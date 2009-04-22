@@ -55,8 +55,7 @@ c_flow_indicator {- 23 -} = c_collect_entry / c_sequence_start / c_sequence_end 
 
 b_line_feed       {- 24 -} = '\xA'
 b_carriage_return {- 25 -} = '\xD'
-
-b_char {- 26 -} = b_line_feed / b_carriage_return
+b_char            {- 26 -} = b_line_feed / b_carriage_return
 
 nb_char {- 27 -} = c_printable - b_char - c_byte_order_mark
 
@@ -169,7 +168,7 @@ b_as_space {- 72 -} = token LineFold b_break
 b_l_folded n c  {- 73 -} = b_l_trimmed n c / b_as_space
 
 s_s_flow_folded n {- 74 -} = ( s_separate_in_line ?) & b_l_folded n FlowIn
-                           & s_line_prefix n FlowIn
+                           & s_flow_line_prefix n
 
 -- 6.6 Comments
 
@@ -317,7 +316,7 @@ s_s_double_escaped n {- 111 -} = ( s_white *)
                                & c_escape ! "escape" & b_non_content
                                & nest EndEscape
                                & ( l_empty n FlowIn *)
-                               & s_line_prefix n FlowIn
+                               & s_flow_line_prefix n
 s_s_double_break n   {- 112 -} = "escape" ^ ( s_s_double_escaped n / s_s_flow_folded n )
 
 nb_ns_double_in_line    {- 113 -} = ( ( s_white *) & ns_double_char *)
@@ -335,9 +334,9 @@ c_quoted_quote {- 116 -} = nest BeginEscape
 nb_single_char {- 117 -} = "escape" ^ ( c_quoted_quote / ( nb_json - c_single_quote ) )
 ns_single_char {- 118 -} = nb_single_char - s_white
 
-c_single_quoted  n c {- 119 -}= nest BeginScalar
-                              & c_single_quote ! "node" & text ( nb_single_text n c ) & c_single_quote
-                              & nest EndScalar
+c_single_quoted  n c {- 119 -} = nest BeginScalar
+                               & c_single_quote ! "node" & text ( nb_single_text n c ) & c_single_quote
+                               & nest EndScalar
 nb_single_text n c {- 120 -} = case c of
                                     FlowOut  -> nb_single_multi_line n
                                     FlowIn   -> nb_single_multi_line n
@@ -550,7 +549,7 @@ l_trail_comments n {- 168 -} = s_indent_lt n & c_nb_comment_text & b_non_content
 -- 8.1.2 Literal Style
 
 c_l__literal n {- 169 -} = do nest BeginScalar
-                              indicator '|'
+                              c_literal
                               (m, t) <- c_b_block_header n
                               text ( l_literal_content (n .+ m) t )
 
@@ -565,7 +564,7 @@ l_literal_content n t {- 172 -} = ( ( l_nb_literal_text n & ( b_nb_literal_next 
 -- 8.1.3 Folded Style
 
 c_l__folded n {- 173 -} = do nest BeginScalar
-                             indicator '>'
+                             c_folded
                              (m, t) <- c_b_block_header n
                              text ( l_folded_content (n .+ m) t )
 
@@ -602,11 +601,11 @@ c_l_block_seq_entry n {- 183 -} = c_sequence_entry & ( ns_char >!) ! "node"
                                 & s_l__block_indented n BlockIn
 
 s_l__block_indented n c {- 184 -} = do m <- detect_inline_indentation
-                                       "node" ^ ( (   s_indent m
-                                                    & ( ns_l_in_line_sequence (n .+ 1 .+ m)
-                                                      / ns_l_in_line_mapping (n .+ 1 .+ m) ) )
-                                                  / s_l__block_node n c
-                                                  / ( e_node & ( s_l_comments ?) & unparsed (n .+ 1) ) ) `recovery` unparsed (n .+ 1)
+                                       "node" ^ ( ( s_indent m
+                                                  & ( ns_l_in_line_sequence (n .+ 1 .+ m)
+                                                    / ns_l_in_line_mapping (n .+ 1 .+ m) ) )
+                                                / s_l__block_node n c
+                                                / ( e_node & ( s_l_comments ?) & unparsed (n .+ 1) ) ) `recovery` unparsed (n .+ 1)
 ns_l_in_line_sequence n {- 185 -} = nest BeginNode
                                   & nest BeginSequence
                                   & c_l_block_seq_entry n
@@ -670,7 +669,7 @@ s_l__block_scalar n c   {- 198 -} = s_separate (n .+ 1) c
 s_l__block_collection n c {- 199 -} = ( s_separate (n .+ 1) c & c_ns_properties (n .+ 1) c & ( s_l_comments >?) ?)
                                     & s_l_comments
                                     & ( l__block_sequence (seq_spaces n c)
-                                    / l__block_mapping n )
+                                      / l__block_mapping n )
 seq_spaces n c            {- 200 -} = case c of
                                            BlockOut -> n .- 1
                                            BlockIn  -> n
@@ -715,4 +714,4 @@ l_any_document   {- 209 -} = nest BeginDocument
 l_yaml_stream {- 210 -} = ( nonEmpty l_document_prefix *)
                         & ( eof / ( c_document_end & ( b_char / s_white / eof ) >?) / l_any_document )
                         & ( nonEmpty ( "more" ^ ( ( l_document_suffix ! "more" +) & ( nonEmpty l_document_prefix *) & ( eof / l_any_document )
-                                                / ( nonEmpty l_document_prefix *) & "doc" ^ ( nest BeginDocument & l_explicit_document & nest EndDocument ) ) ) *)
+                                                / ( nonEmpty l_document_prefix *) & "doc" ^ ( nest BeginDocument & l_explicit_document & nest EndDocument )? ) ) *)
