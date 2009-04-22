@@ -324,7 +324,7 @@ s_double_next_line n {- 114 -} = s_double_break n
                                & ( ns_double_char & nb_ns_double_in_line
                                  & ( s_double_next_line n / ( s_white *) ) ?)
 nb_double_multi_line n  {- 115 -} = nb_ns_double_in_line
-                                  & ( s_double_next_line n / ( s_white *) ?)
+                                  & ( s_double_next_line n / ( s_white *) )
 
 -- 7.3.2 Single Quoted Style
 
@@ -349,7 +349,7 @@ s_single_next_line n {- 123 -} = s_flow_folded n
                                  & ( ns_single_char & nb_ns_single_in_line
                                     & ( s_single_next_line n / ( s_white *) ) ?)
 nb_single_multi_line n  {- 124 -} = nb_ns_single_in_line
-                                  & ( s_single_next_line n / ( s_white *) ?)
+                                  & ( s_single_next_line n / ( s_white *) )
 
 -- 7.3.3 Plain Style
 
