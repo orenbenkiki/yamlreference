@@ -109,6 +109,8 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/c-document-end.output
                      tests/c-double-quoted.n=0.c=flow-out.input
                      tests/c-double-quoted.n=0.c=flow-out.output
+                     tests/c-double-quoted.n=2.c=flow-out.input
+                     tests/c-double-quoted.n=2.c=flow-out.output
                      tests/c-double-quoted.n=4.c=flow-out.input
                      tests/c-double-quoted.n=4.c=flow-out.invalid.input
                      tests/c-double-quoted.n=4.c=flow-out.invalid.output
@@ -415,6 +417,8 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/c-s-implicit-json-key.c=flow-key.short.output
                      tests/c-single-quoted.n=0.c=flow-out.input
                      tests/c-single-quoted.n=0.c=flow-out.output
+                     tests/c-single-quoted.n=2.c=flow-out.input
+                     tests/c-single-quoted.n=2.c=flow-out.output
                      tests/c-single-quoted.n=4.c=flow-out.input
                      tests/c-single-quoted.n=4.c=flow-out.invalid.input
                      tests/c-single-quoted.n=4.c=flow-out.invalid.output
@@ -1029,6 +1033,28 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/s-block-line-prefix.n=4.invalid.input
                      tests/s-block-line-prefix.n=4.invalid.output
                      tests/s-block-line-prefix.n=4.output
+                     tests/s-double-break.n=4.escaped.input
+                     tests/s-double-break.n=4.escaped.output
+                     tests/s-double-break.n=4.folded.input
+                     tests/s-double-break.n=4.folded.output
+                     tests/s-double-break.n=4.invalid.input
+                     tests/s-double-break.n=4.invalid.output
+                     tests/s-double-escaped.n=2.input
+                     tests/s-double-escaped.n=2.invalid.input
+                     tests/s-double-escaped.n=2.invalid.output
+                     tests/s-double-escaped.n=2.output
+                     tests/s-double-next-line.n=4.input
+                     tests/s-double-next-line.n=4.invalid.input
+                     tests/s-double-next-line.n=4.invalid.output
+                     tests/s-double-next-line.n=4.output
+                     tests/s-flow-folded.n=2.input
+                     tests/s-flow-folded.n=2.output
+                     tests/s-flow-folded.n=4.invalid.input
+                     tests/s-flow-folded.n=4.invalid.output
+                     tests/s-flow-folded.n=4.lf.input
+                     tests/s-flow-folded.n=4.lf.output
+                     tests/s-flow-folded.n=4.sp-lf-lf.input
+                     tests/s-flow-folded.n=4.sp-lf-lf.output
                      tests/s-flow-line-prefix.n=4.indent.input
                      tests/s-flow-line-prefix.n=4.indent.output
                      tests/s-flow-line-prefix.n=4.invalid.input
@@ -1154,28 +1180,10 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/s-nb-spaced-text.n=4.invalid.input
                      tests/s-nb-spaced-text.n=4.invalid.output
                      tests/s-nb-spaced-text.n=4.output
-                     tests/s-ns-double-next-line.n=4.input
-                     tests/s-ns-double-next-line.n=4.invalid.input
-                     tests/s-ns-double-next-line.n=4.invalid.output
-                     tests/s-ns-double-next-line.n=4.output
                      tests/s-ns-plain-next-line.n=4.c=flow-in.input
                      tests/s-ns-plain-next-line.n=4.c=flow-in.invalid.input
                      tests/s-ns-plain-next-line.n=4.c=flow-in.invalid.output
                      tests/s-ns-plain-next-line.n=4.c=flow-in.output
-                     tests/s-ns-single-next-line.n=4.input
-                     tests/s-ns-single-next-line.n=4.invalid.input
-                     tests/s-ns-single-next-line.n=4.invalid.output
-                     tests/s-ns-single-next-line.n=4.output
-                     tests/s-s-double-break.n=4.escaped.input
-                     tests/s-s-double-break.n=4.escaped.output
-                     tests/s-s-double-break.n=4.folded.input
-                     tests/s-s-double-break.n=4.folded.output
-                     tests/s-s-double-break.n=4.invalid.input
-                     tests/s-s-double-break.n=4.invalid.output
-                     tests/s-s-double-escaped.n=2.input
-                     tests/s-s-double-escaped.n=2.invalid.input
-                     tests/s-s-double-escaped.n=2.invalid.output
-                     tests/s-s-double-escaped.n=2.output
                      tests/s-separate-in-line.invalid.input
                      tests/s-separate-in-line.invalid.output
                      tests/s-separate-in-line.sol.input
@@ -1202,21 +1210,17 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/s-separate.n=4.c=flow-out.line.output
                      tests/s-separate.n=4.c=flow-out.sp.input
                      tests/s-separate.n=4.c=flow-out.sp.output
-                     tests/s-s-flow-folded.n=2.input
-                     tests/s-s-flow-folded.n=2.output
-                     tests/s-s-flow-folded.n=4.invalid.input
-                     tests/s-s-flow-folded.n=4.invalid.output
-                     tests/s-s-flow-folded.n=4.lf.input
-                     tests/s-s-flow-folded.n=4.lf.output
-                     tests/s-s-flow-folded.n=4.sp-lf-lf.input
-                     tests/s-s-flow-folded.n=4.sp-lf-lf.output
-                     tests/s-space.input tests/s-space.invalid.input
-                     tests/s-space.invalid.output tests/s-space.output
-                     tests/s-tab.input tests/s-tab.invalid.input
-                     tests/s-tab.invalid.output tests/s-tab.output
-                     tests/s-white.invalid.input tests/s-white.invalid.output
-                     tests/s-white.sp.input tests/s-white.sp.output
-                     tests/s-white.tab.input tests/s-white.tab.output
+                     tests/s-single-next-line.n=4.input
+                     tests/s-single-next-line.n=4.invalid.input
+                     tests/s-single-next-line.n=4.invalid.output
+                     tests/s-single-next-line.n=4.output tests/s-space.input
+                     tests/s-space.invalid.input tests/s-space.invalid.output
+                     tests/s-space.output tests/s-tab.input
+                     tests/s-tab.invalid.input tests/s-tab.invalid.output
+                     tests/s-tab.output tests/s-white.invalid.input
+                     tests/s-white.invalid.output tests/s-white.sp.input
+                     tests/s-white.sp.output tests/s-white.tab.input
+                     tests/s-white.tab.output
 
 Flag small_base
     Description:         Choose the new smaller, split-up base package.

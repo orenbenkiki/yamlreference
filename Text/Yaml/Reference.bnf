@@ -167,8 +167,8 @@ b_as_space {- 72 -} = token LineFold b_break
 
 b_l_folded n c  {- 73 -} = b_l_trimmed n c / b_as_space
 
-s_s_flow_folded n {- 74 -} = ( s_separate_in_line ?) & b_l_folded n FlowIn
-                           & s_flow_line_prefix n
+s_flow_folded n {- 74 -} = ( s_separate_in_line ?) & b_l_folded n FlowIn
+                         & s_flow_line_prefix n
 
 -- 6.6 Comments
 
@@ -311,20 +311,20 @@ nb_double_text n c  {- 109 -} = case c of
                                      FlowKey  -> nb_double_one_line
 nb_double_one_line  {- 110 -} = ( nb_double_char *)
 
-s_s_double_escaped n {- 111 -} = ( s_white *)
-                               & nest BeginEscape
-                               & c_escape ! "escape" & b_non_content
-                               & nest EndEscape
-                               & ( l_empty n FlowIn *)
-                               & s_flow_line_prefix n
-s_s_double_break n   {- 112 -} = "escape" ^ ( s_s_double_escaped n / s_s_flow_folded n )
+s_double_escaped n {- 111 -} = ( s_white *)
+                             & nest BeginEscape
+                             & c_escape ! "escape" & b_non_content
+                             & nest EndEscape
+                             & ( l_empty n FlowIn *)
+                             & s_flow_line_prefix n
+s_double_break n   {- 112 -} = "escape" ^ ( s_double_escaped n / s_flow_folded n )
 
 nb_ns_double_in_line    {- 113 -} = ( ( s_white *) & ns_double_char *)
-s_ns_double_next_line n {- 114 -} = s_s_double_break n
-                                  & ( ns_double_char & nb_ns_double_in_line
-                                    & ( s_ns_double_next_line n / ( s_white *) ) ?)
+s_double_next_line n {- 114 -} = s_double_break n
+                               & ( ns_double_char & nb_ns_double_in_line
+                                 & ( s_double_next_line n / ( s_white *) ) ?)
 nb_double_multi_line n  {- 115 -} = nb_ns_double_in_line
-                                  & ( s_ns_double_next_line n ?)
+                                  & ( s_double_next_line n / ( s_white *) ?)
 
 -- 7.3.2 Single Quoted Style
 
@@ -345,11 +345,11 @@ nb_single_text n c {- 120 -} = case c of
 nb_single_one_line {- 121 -} = ( nb_single_char *)
 
 nb_ns_single_in_line    {- 122 -} = ( ( s_white *) & ns_single_char *)
-s_ns_single_next_line n {- 123 -} = s_s_flow_folded n
-                                  & ( ns_single_char & nb_ns_single_in_line
-                                    & ( s_ns_single_next_line n / ( s_white *) ) ?)
+s_single_next_line n {- 123 -} = s_flow_folded n
+                                 & ( ns_single_char & nb_ns_single_in_line
+                                    & ( s_single_next_line n / ( s_white *) ) ?)
 nb_single_multi_line n  {- 124 -} = nb_ns_single_in_line
-                                  & ( s_ns_single_next_line n ?)
+                                  & ( s_single_next_line n / ( s_white *) ?)
 
 -- 7.3.3 Plain Style
 
@@ -377,7 +377,7 @@ ns_plain n c          {- 130 -} = nest BeginScalar
 nb_ns_plain_in_line c {- 131 -} = ( ( s_white *) & ns_plain_char c *)
 ns_plain_one_line c   {- 132 -} = ns_plain_first c ! "node" & nb_ns_plain_in_line c
 
-s_ns_plain_next_line n c {- 133 -} = s_s_flow_folded n
+s_ns_plain_next_line n c {- 133 -} = s_flow_folded n
                                    & ns_plain_char c & nb_ns_plain_in_line c
 ns_plain_multi_line n c  {- 134 -} = ns_plain_one_line c
                                    & ( s_ns_plain_next_line n c *)
