@@ -11,4 +11,6 @@ s
 # B: 1, C: 1, L: 1, c: 1
 n
 # B: 1, C: 1, L: 1, c: 1
+x
+# B: 1, C: 1, L: 1, c: 1
 !Unexpected '\x0a'

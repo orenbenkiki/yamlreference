@@ -55,6 +55,10 @@ n
 # B: 8, C: 8, L: 2, c: 5
 x
 # B: 8, C: 8, L: 2, c: 5
+m
+# B: 8, C: 8, L: 2, c: 5
+n
+# B: 8, C: 8, L: 2, c: 5
 !Unexpected '\x0a'
 # B: 8, C: 8, L: 2, c: 5
 -\x0a

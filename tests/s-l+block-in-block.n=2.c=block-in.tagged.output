@@ -25,6 +25,8 @@ S
 # B: 4, C: 4, L: 1, c: 4
 I|
 # B: 5, C: 5, L: 1, c: 5
+!Commit to 'node' was made outside it
+# B: 5, C: 5, L: 1, c: 5
 b\x0a
 # B: 6, C: 6, L: 2, c: 0
 i   

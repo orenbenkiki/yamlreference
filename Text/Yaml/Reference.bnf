@@ -119,8 +119,8 @@ ns_esc_8_bit               {- 59 -} = indicator 'x' ! "escaped" & meta ( ns_hex_
 ns_esc_16_bit              {- 60 -} = indicator 'u' ! "escaped" & meta ( ns_hex_digit % 4 )
 ns_esc_32_bit              {- 61 -} = indicator 'U' ! "escaped" & meta ( ns_hex_digit % 8 )
 
-c_ns_esc_char {- 62 -} = nest BeginEscape
-                       & c_escape ! "escape"
+c_ns_esc_char {- 62 -} = wrapTokens BeginEscape EndEscape
+                       $ c_escape ! "escape"
                        & "escaped"
                        ^ ( ns_esc_null / ns_esc_bell / ns_esc_backspace
                          / ns_esc_horizontal_tab / ns_esc_line_feed
@@ -130,7 +130,6 @@ c_ns_esc_char {- 62 -} = nest BeginEscape
                          / ns_esc_next_line / ns_esc_non_breaking_space
                          / ns_esc_line_separator / ns_esc_paragraph_separator
                          / ns_esc_8_bit / ns_esc_16_bit / ns_esc_32_bit )
-                       & nest EndEscape
 
 -- 6.1 Indentation Spaces
 
@@ -172,9 +171,8 @@ s_flow_folded n {- 74 -} = ( s_separate_in_line ?) & b_l_folded n FlowIn
 
 -- 6.6 Comments
 
-c_nb_comment_text {- 75 -} = nest BeginComment
-                           & c_comment & meta ( nb_char *)
-                           & nest EndComment
+c_nb_comment_text {- 75 -} = wrapTokens BeginComment EndComment
+                           $ c_comment & meta ( nb_char *)
 
 b_comment {- 76 -} = b_non_content / eof
 
@@ -200,13 +198,12 @@ s_separate_lines n {- 81 -} = s_l_comments & s_flow_line_prefix n
 
 -- 6.8 Directives
 
-l_directive {- 82 -} = nest BeginDirective
-                     & c_directive ! "doc"
-                     & "directive"
-                     ^ ( ns_yaml_directive
-                       / ns_tag_directive
-                       / ns_reserved_directive )
-                     & nest EndDirective
+l_directive {- 82 -} = ( wrapTokens BeginDirective EndDirective
+                       $ c_directive ! "doc"
+                       & "directive"
+                       ^ ( ns_yaml_directive
+                         / ns_tag_directive
+                         / ns_reserved_directive ) )
                      & s_l_comments
 
 ns_reserved_directive  {- 83 -} = ns_directive_name
@@ -228,27 +225,24 @@ ns_tag_directive {- 88 -} = meta [ 'T', 'A', 'G' ] ! "directive"
 
 -- 6.8.2.1 Tag Handles
 
+{- TODO -}
 c_tag_handle {- 89 -} = c_named_tag_handle
                       / c_secondary_tag_handle
                       / c_primary_tag_handle
 
-c_primary_tag_handle   {- 90 -} = nest BeginHandle
-                                & c_tag
-                                & nest EndHandle
+c_primary_tag_handle   {- 90 -} = wrapTokens BeginHandle EndHandle
+                                $ c_tag
 
-c_secondary_tag_handle {- 91 -} = nest BeginHandle
-                                & c_tag & c_tag
-                                & nest EndHandle
+c_secondary_tag_handle {- 91 -} = wrapTokens BeginHandle EndHandle
+                                $ c_tag & c_tag
 
-c_named_tag_handle     {- 92 -} = nest BeginHandle
-                                 & c_tag & meta ( ns_word_char +) & c_tag
-                                 & nest EndHandle
+c_named_tag_handle     {- 92 -} = wrapTokens BeginHandle EndHandle
+                                $ c_tag & meta ( ns_word_char +) & c_tag
 
 -- 6.8.2.2 Tag Prefixes
 
-ns_tag_prefix {- 93 -} = nest BeginTag
-                       & ( c_ns_local_tag_prefix / ns_global_tag_prefix )
-                       & nest EndTag
+ns_tag_prefix {- 93 -} = wrapTokens BeginTag EndTag
+                       $ ( c_ns_local_tag_prefix / ns_global_tag_prefix )
 
 c_ns_local_tag_prefix {- 94 -} = c_tag & meta ( ns_uri_char *)
 
@@ -256,20 +250,18 @@ ns_global_tag_prefix  {- 95 -} = meta ( ns_tag_char & ( ns_uri_char *) )
 
 -- 6.9 Node Properties
 
-c_ns_properties n c {- 96 -} = nest BeginProperties
-                              & ( ( c_ns_tag_property
-                                  & ( s_separate n c & c_ns_anchor_property ?) )
-                                / ( c_ns_anchor_property
-                                  & ( s_separate n c & c_ns_tag_property ?) ) )
-                              & nest EndProperties
+c_ns_properties n c {- 96 -} = wrapTokens BeginProperties EndProperties
+                             $ ( c_ns_tag_property
+                               & ( s_separate n c & c_ns_anchor_property ?) )
+                             / ( c_ns_anchor_property
+                               & ( s_separate n c & c_ns_tag_property ?) )
 
 -- 6.9.1 Node Tags
 
-c_ns_tag_property {- 97 -} = nest BeginTag
-                            & ( c_verbatim_tag
-                              / c_ns_shorthand_tag
-                              / c_non_specific_tag )
-                            & nest EndTag
+c_ns_tag_property {- 97 -} = wrapTokens BeginTag EndTag
+                           $ c_verbatim_tag
+                           / c_ns_shorthand_tag
+                           / c_non_specific_tag
 
 c_verbatim_tag     {- 98 -} = c_tag & indicator '<' & meta ( ns_uri_char +) & indicator '>'
 
@@ -279,33 +271,30 @@ c_non_specific_tag {- 100 -} = c_tag
 
 -- 6.9.2 Node Anchors
 
-c_ns_anchor_property {- 101 -} = nest BeginAnchor
-                               & c_anchor & ns_anchor_name
-                               & nest EndAnchor
+c_ns_anchor_property {- 101 -} = wrapTokens BeginAnchor EndAnchor
+                               $ c_anchor & ns_anchor_name
 
 ns_anchor_char {- 102 -} = ns_char - c_flow_indicator
 ns_anchor_name {- 103 -} = meta ( ns_anchor_char +)
 
 -- 7.1 Alias Nodes
 
-c_ns_alias_node {- 104 -} = nest BeginAlias
-                          & c_alias ! "node" & ns_anchor_name
-                          & nest EndAlias
+c_ns_alias_node {- 104 -} = wrapTokens BeginAlias EndAlias
+                          $ c_alias ! "node" & ns_anchor_name
 
 -- 7.2 Empty Nodes
 
-e_scalar {- 105 -} = nest BeginScalar & nest EndScalar
+e_scalar {- 105 -} = wrapTokens BeginScalar EndScalar empty
 
-e_node {- 106 -} = nest BeginNode & e_scalar & nest EndNode
+e_node {- 106 -} = wrapTokens BeginNode EndNode e_scalar
 
 -- 7.3.1 Double Quoted Style
 
 nb_double_char {- 107 -} = "escape" ^ ( c_ns_esc_char / ( nb_json - c_escape - c_double_quote ) )
 ns_double_char {- 108 -} = nb_double_char - s_white
 
-c_double_quoted n c {- 109 -} = nest BeginScalar
-                              & c_double_quote ! "node" & text ( nb_double_text n c ) & c_double_quote
-                              & nest EndScalar
+c_double_quoted n c {- 109 -} = wrapTokens BeginScalar EndScalar
+                              $ c_double_quote ! "node" & text ( nb_double_text n c ) & c_double_quote
 nb_double_text n c  {- 110 -} = case c of
                                      FlowOut  -> nb_double_multi_line n
                                      FlowIn   -> nb_double_multi_line n
@@ -314,9 +303,7 @@ nb_double_text n c  {- 110 -} = case c of
 nb_double_one_line  {- 111 -} = ( nb_double_char *)
 
 s_double_escaped n {- 112 -} = ( s_white *)
-                             & nest BeginEscape
-                             & c_escape ! "escape" & b_non_content
-                             & nest EndEscape
+                             & wrapTokens BeginEscape EndEscape ( c_escape ! "escape" & b_non_content )
                              & ( l_empty n FlowIn *)
                              & s_flow_line_prefix n
 s_double_break n   {- 113 -} = "escape" ^ ( s_double_escaped n / s_flow_folded n )
@@ -330,15 +317,13 @@ nb_double_multi_line n  {- 116 -} = nb_ns_double_in_line
 
 -- 7.3.2 Single Quoted Style
 
-c_quoted_quote {- 117 -} = nest BeginEscape
-                         & c_single_quote ! "escape" & meta '\''
-                         & nest EndEscape
+c_quoted_quote {- 117 -} = wrapTokens BeginEscape EndEscape
+                         $ c_single_quote ! "escape" & meta '\''
 nb_single_char {- 118 -} = "escape" ^ ( c_quoted_quote / ( nb_json - c_single_quote ) )
 ns_single_char {- 119 -} = nb_single_char - s_white
 
-c_single_quoted  n c {- 120 -} = nest BeginScalar
-                               & c_single_quote ! "node" & text ( nb_single_text n c ) & c_single_quote
-                               & nest EndScalar
+c_single_quoted  n c {- 120 -} = wrapTokens BeginScalar EndScalar
+                               $ c_single_quote ! "node" & text ( nb_single_text n c ) & c_single_quote
 nb_single_text n c {- 121 -} = case c of
                                     FlowOut  -> nb_single_multi_line n
                                     FlowIn   -> nb_single_multi_line n
@@ -369,13 +354,12 @@ ns_plain_char c   {- 130 -} = ns_plain_safe c
                             / ( ns_char <?) & '#'
                             / ':' & ( ns_char >?)
 
-ns_plain n c          {- 131 -} = nest BeginScalar
-                                & text (case c of
+ns_plain n c          {- 131 -} = wrapTokens BeginScalar EndScalar
+                                $ text (case c of
                                              FlowOut  -> ns_plain_multi_line n c
                                              FlowIn   -> ns_plain_multi_line n c
                                              BlockKey -> ns_plain_one_line c
                                              FlowKey  -> ns_plain_one_line c)
-                                & nest EndScalar
 nb_ns_plain_in_line c {- 132 -} = ( ( s_white *) & ns_plain_char c *)
 ns_plain_one_line c   {- 133 -} = ns_plain_first c ! "node" & nb_ns_plain_in_line c
 
@@ -394,10 +378,9 @@ in_flow c {- 136 -} = case c of
 
 -- 7.4.1 Flow Sequences
 
-c_flow_sequence n c {- 137 -} = nest BeginSequence
-                              & c_sequence_start ! "node" & ( s_separate n c ?)
+c_flow_sequence n c {- 137 -} = wrapTokens BeginSequence EndSequence
+                              $ c_sequence_start ! "node" & ( s_separate n c ?)
                               & ( ns_s_flow_seq_entries n (in_flow c) ?) & c_sequence_end
-                              & nest EndSequence
 
 ns_s_flow_seq_entries n c {- 138 -} = ns_flow_seq_entry n c & ( s_separate n c ?)
                                     & ( c_collect_entry & ( s_separate n c ?)
@@ -407,19 +390,17 @@ ns_flow_seq_entry n c {- 139 -} = "pair" ^ ( ns_flow_pair n c / "node" ^ ns_flow
 
 -- 7.4.2 Flow Mappings
 
-c_flow_mapping n c        {- 140 -} = nest BeginMapping
-                                    & c_mapping_start ! "node" & ( s_separate n c ?)
+c_flow_mapping n c        {- 140 -} = wrapTokens BeginMapping EndMapping
+                                    $ c_mapping_start ! "node" & ( s_separate n c ?)
                                     & ( ns_s_flow_map_entries n (in_flow c) ?) & c_mapping_end
-                                    & nest EndMapping
 ns_s_flow_map_entries n c {- 141 -} = ns_flow_map_entry n c & ( s_separate n c ?)
                                     & ( c_collect_entry & ( s_separate n c ?)
                                       & ( ns_s_flow_map_entries n c ?) ?)
 
-ns_flow_map_entry n c {- 142 -}          = nest BeginPair
-                                         & "key" ^ ( ( c_mapping_key ! "key" & s_separate n c
+ns_flow_map_entry n c {- 142 -}          = wrapTokens BeginPair EndPair
+                                         $ "key" ^ ( ( c_mapping_key ! "key" & s_separate n c
                                                      & ns_flow_map_explicit_entry n c )
                                                    / ns_flow_map_implicit_entry n c )
-                                         & nest EndPair
 ns_flow_map_explicit_entry n c {- 143 -} = ns_flow_map_implicit_entry n c
                                          / ( e_node
                                            & e_node )
@@ -448,13 +429,11 @@ c_ns_flow_map_adjacent_value n c {- 149 -} = c_mapping_value ! "pair"
                                                & ns_flow_node n c )
                                                / e_node )
 
-ns_flow_pair n c {- 150 -} = nest BeginMapping
-                           & nest BeginPair
-                           & ( ( c_mapping_key ! "pair" & s_separate n c
+ns_flow_pair n c {- 150 -} = wrapTokens BeginMapping EndMapping
+                           $ wrapTokens BeginPair EndPair
+                           $ ( ( c_mapping_key ! "pair" & s_separate n c
                                & ns_flow_map_explicit_entry n c )
                              / ns_flow_pair_entry n c )
-                           & nest EndPair
-                           & nest EndMapping
 
 ns_flow_pair_entry n c            {- 151 -} = ( ns_flow_pair_yaml_key_entry n c
                                               / c_ns_flow_map_empty_key_entry n c
@@ -475,24 +454,21 @@ c_flow_json_content n c  {- 157 -} = c_flow_sequence n c / c_flow_mapping n c
                                    / c_single_quoted n c / c_double_quoted n c
 ns_flow_content n c      {- 158 -} = ns_flow_yaml_content n c / c_flow_json_content n c
 
-ns_flow_yaml_node n c {- 159 -} = nest BeginNode
-                                & ( c_ns_alias_node
-                                  / ns_flow_yaml_content n c
-                                  / ( c_ns_properties n c
-                                    & ( ( s_separate n c & ns_flow_yaml_content n c )
-                                      / e_scalar ) ) )
-                                & nest EndNode
-c_flow_json_node n c  {- 160 -} = nest BeginNode
-                                & ( c_ns_properties n c & s_separate n c ?)
+ns_flow_yaml_node n c {- 159 -} = wrapTokens BeginNode EndNode
+                                $ c_ns_alias_node
+                                / ns_flow_yaml_content n c
+                                / ( c_ns_properties n c
+                                  & ( ( s_separate n c & ns_flow_yaml_content n c )
+                                    / e_scalar ) )
+c_flow_json_node n c  {- 160 -} = wrapTokens BeginNode EndNode
+                                $ ( c_ns_properties n c & s_separate n c ?)
                                 & c_flow_json_content n c
-                                & nest EndNode
-ns_flow_node n c      {- 161 -} = nest BeginNode
-                                & ( c_ns_alias_node
-                                  / ns_flow_content n c
-                                  / ( c_ns_properties n c
-                                    & ( ( s_separate n c & ns_flow_content n c )
-                                      / e_scalar ) ) )
-                                & nest EndNode
+ns_flow_node n c      {- 161 -} = wrapTokens BeginNode EndNode
+                                $ c_ns_alias_node
+                                / ns_flow_content n c
+                                / ( c_ns_properties n c
+                                  & ( ( s_separate n c & ns_flow_content n c )
+                                    / e_scalar ) )
 
 -- 8.1.1 Block Scalar Headers
 
@@ -526,13 +502,13 @@ c_chomping_indicator {- 164 -} = indicator '-' & result Strip
                                / result Clip
 
 end_block_scalar t = case t of
-                          Strip -> nest EndScalar
-                          Clip  -> nest EndScalar
+                          Strip -> emptyToken EndScalar
+                          Clip  -> emptyToken EndScalar
                           Keep  -> empty
 
 b_chomped_last t {- 165 -} = case t of
-                                  Strip -> nest EndScalar & b_non_content
-                                  Clip  -> b_as_line_feed & nest EndScalar
+                                  Strip -> emptyToken EndScalar & b_non_content
+                                  Clip  -> b_as_line_feed & emptyToken EndScalar
                                   Keep  -> b_as_line_feed
 
 l_chomped_empty n t {- 166 -} = case t of
@@ -542,7 +518,7 @@ l_chomped_empty n t {- 166 -} = case t of
 l_strip_empty n     {- 167 -} = ( s_indent_le n & b_non_content *)
                               & ( l_trail_comments n ?)
 l_keep_empty n      {- 168 -} = ( l_empty n BlockIn *)
-                              & nest EndScalar
+                              & emptyToken EndScalar
                               & ( l_trail_comments n ?)
 
 l_trail_comments n {- 169 -} = s_indent_lt n & c_nb_comment_text & b_comment
@@ -550,9 +526,9 @@ l_trail_comments n {- 169 -} = s_indent_lt n & c_nb_comment_text & b_comment
 
 -- 8.1.2 Literal Style
 
-c_l__literal n {- 170 -} = do nest BeginScalar
-                              c_literal
-                              (m, t) <- c_b_block_header n
+c_l__literal n {- 170 -} = do emptyToken BeginScalar
+                              c_literal ! "node"
+                              (m, t) <- c_b_block_header n `prefixErrorWith` emptyToken EndScalar
                               text ( l_literal_content (n .+ m) t )
 
 l_nb_literal_text n   {- 171 -} = ( l_empty n BlockIn *)
@@ -565,9 +541,9 @@ l_literal_content n t {- 173 -} = ( ( l_nb_literal_text n & ( b_nb_literal_next 
 
 -- 8.1.3 Folded Style
 
-c_l__folded n {- 174 -} = do nest BeginScalar
-                             c_folded
-                             (m, t) <- c_b_block_header n
+c_l__folded n {- 174 -} = do emptyToken BeginScalar
+                             c_folded ! "node"
+                             (m, t) <- c_b_block_header n `prefixErrorWith` emptyToken EndScalar
                              text ( l_folded_content (n .+ m) t )
 
 s_nb_folded_text n  {- 175 -} = s_indent n & ns_char ! "fold" & ( nb_char *)
@@ -596,9 +572,7 @@ detect_collection_indentation n = peek $ ( nonEmpty l_comment* ) & count_spaces 
 detect_inline_indentation       = peek $ count_spaces 0
 
 l__block_sequence n   {- 183 -} = do m  <- detect_collection_indentation n
-                                     (   nest BeginSequence
-                                       & ( s_indent (n .+ m) & c_l_block_seq_entry (n .+ m) +)
-                                       & nest EndSequence )
+                                     wrapTokens BeginSequence EndSequence $ ( s_indent (n .+ m) & c_l_block_seq_entry (n .+ m) +)
 c_l_block_seq_entry n {- 184 -} = c_sequence_entry & ( ns_char >!) ! "node"
                                 & s_l__block_indented n BlockIn
 
@@ -608,24 +582,19 @@ s_l__block_indented n c {- 185 -} = do m <- detect_inline_indentation
                                                     / ns_l_in_line_mapping (n .+ 1 .+ m) ) )
                                                 / s_l__block_node n c
                                                 / ( e_node & ( s_l_comments ?) & unparsed (n .+ 1) ) ) `recovery` unparsed (n .+ 1)
-ns_l_in_line_sequence n {- 186 -} = nest BeginNode
-                                  & nest BeginSequence
-                                  & c_l_block_seq_entry n
+ns_l_in_line_sequence n {- 186 -} = wrapTokens BeginNode EndNode
+                                  $ wrapTokens BeginSequence EndSequence
+                                  $ c_l_block_seq_entry n
                                   & ( s_indent n & c_l_block_seq_entry n *)
-                                  & nest EndSequence
-                                  & nest EndNode
 
 -- 8.2.2 Block Mappings
 
 l__block_mapping n = {- 187 -} do m <- detect_collection_indentation n
-                                  (   nest BeginMapping
-                                    & ( s_indent (n .+ m) & ns_l_block_map_entry (n .+ m) +)
-                                    & nest EndMapping )
+                                  wrapTokens BeginMapping EndMapping $ ( s_indent (n .+ m) & ns_l_block_map_entry (n .+ m) +)
 
-ns_l_block_map_entry n {- 188 -} = nest BeginPair
-                                 & ( c_l_block_map_explicit_entry n
-                                   / ns_l_block_map_implicit_entry n )
-                                 & nest EndPair
+ns_l_block_map_entry n {- 188 -} = wrapTokens BeginPair EndPair
+                                 $ c_l_block_map_explicit_entry n
+                                 / ns_l_block_map_implicit_entry n
 c_l_block_map_explicit_entry n {- 189 -} = c_l_block_map_explicit_key n
                                          & ( l_block_map_explicit_value n
                                          / e_node )
@@ -642,12 +611,10 @@ c_l_block_map_implicit_value n  {- 194 -} = c_mapping_value ! "node"
                                           & ( ( s_l__block_node n BlockOut
                                               / ( e_node & ( s_l_comments ?) & unparsed (n .+ 1) ) ) `recovery` unparsed (n .+ 1) )
 
-ns_l_in_line_mapping n {- 195 -} = nest BeginNode
-                                 & nest BeginMapping
-                                 & ns_l_block_map_entry n
+ns_l_in_line_mapping n {- 195 -} = wrapTokens BeginNode EndNode
+                                 $ wrapTokens BeginMapping EndMapping
+                                 $ ns_l_block_map_entry n
                                  & ( s_indent n & ns_l_block_map_entry n *)
-                                 & nest EndMapping
-                                 & nest EndNode
 
 -- 8.2.3 Block Nodes
 
@@ -661,9 +628,8 @@ s_l__block_node n c  {- 196 -} = s_l__block_in_block n c / s_l__flow_in_block n
 s_l__flow_in_block n {- 197 -} = s_separate (n .+ 1) FlowOut
                                & ns_flow_node (n .+ 1) FlowOut & s_l_comments
 
-s_l__block_in_block n c {- 198 -} = nest BeginNode
-                                  & ( s_l__block_scalar n c / s_l__block_collection n c )
-                                  & nest EndNode
+s_l__block_in_block n c {- 198 -} = wrapTokens BeginNode EndNode
+                                  $ ( s_l__block_scalar n c / s_l__block_collection n c )
 s_l__block_scalar n c   {- 199 -} = s_separate (n .+ 1) c
                                   & ( c_ns_properties (n .+ 1) c & s_separate (n .+ 1) c ?)
                                   & ( c_l__literal n / c_l__folded n )
@@ -707,13 +673,12 @@ l_directives_document {- 209 -} = ( l_directive +)
 
 -- 9.2 Streams:
 
-l_any_document   {- 210 -} = nest BeginDocument
-                           & "doc" ^ ( l_directives_document
+l_any_document   {- 210 -} = wrapTokens BeginDocument EndDocument
+                           $ "doc" ^ ( l_directives_document
                                      / l_explicit_document
                                      / l_bare_document ) `recovery` unparsed 0
-                           & nest EndDocument
 
 l_yaml_stream {- 211 -} = ( nonEmpty l_document_prefix *)
                         & ( eof / ( c_document_end & ( b_char / s_white / eof ) >?) / l_any_document )
                         & ( nonEmpty ( "more" ^ ( ( l_document_suffix ! "more" +) & ( nonEmpty l_document_prefix *) & ( eof / l_any_document )
-                                                / ( nonEmpty l_document_prefix *) & "doc" ^ ( nest BeginDocument & l_explicit_document & nest EndDocument )? ) ) *)
+                                                / ( nonEmpty l_document_prefix *) & "doc" ^ ( wrapTokens BeginDocument EndDocument l_explicit_document ?) ) ) *)

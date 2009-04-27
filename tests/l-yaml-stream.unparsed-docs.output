@@ -33,6 +33,10 @@ x
 # B: 3, C: 3, L: 1, c: 3
 b\x0a
 # B: 4, C: 4, L: 2, c: 0
+m
+# B: 4, C: 4, L: 2, c: 0
+n
+# B: 4, C: 4, L: 2, c: 0
 !Unexpected forbidden pattern
 # B: 4, C: 4, L: 2, c: 0
 o
@@ -94,6 +98,10 @@ n
 x
 # B: 19, C: 19, L: 5, c: 3
 b\x0a
+# B: 20, C: 20, L: 6, c: 0
+m
+# B: 20, C: 20, L: 6, c: 0
+n
 # B: 20, C: 20, L: 6, c: 0
 !Unexpected end of input
 # B: 20, C: 20, L: 6, c: 0

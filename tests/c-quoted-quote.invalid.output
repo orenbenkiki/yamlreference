@@ -5,4 +5,6 @@ I'
 # B: 1, C: 1, L: 1, c: 1
 !Commit to 'escape' was made outside it
 # B: 1, C: 1, L: 1, c: 1
+e
+# B: 1, C: 1, L: 1, c: 1
 !Unexpected 'a'

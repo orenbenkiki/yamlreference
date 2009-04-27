@@ -64,7 +64,7 @@
 --
 --  [@i@] Contains indentation spaces
 --
---  [@K@] Document start marker
+--  [@K@] Directives end marker
 --
 --  [@k@] Document end marker
 --
@@ -126,14 +126,12 @@
 --
 --  [@!@] Parsing error at this point.
 --
--- In addition, the following codes are used for testing partial productions
+--  [@-@] Unparsed text following error point.
+--
+-- In addition, the following code is used for testing partial productions
 -- and do not appear when parsing a complete YAML stream:
 --
---  [@?@] Contains test characters otherwise unassigned
---
---  [@\/@] Value of detected parameters
---
---  [@-@] Unparsed text following error point.
+--  [@$@] Value of detected parameters
 --
 -------------------------------------------------------------------------------
 module Main (main) where

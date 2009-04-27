@@ -23,6 +23,8 @@ S
 # B: 8, C: 8, L: 2, c: 3
 I>
 # B: 9, C: 9, L: 2, c: 4
+!Commit to 'node' was made outside it
+# B: 9, C: 9, L: 2, c: 4
 b\x0a
 # B: 10, C: 10, L: 3, c: 0
 i   

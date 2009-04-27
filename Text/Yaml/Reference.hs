@@ -376,10 +376,8 @@ data Code = Bom             -- ^ BOM, contains \"@TF8@\", \"@TF16LE@\", \"@TF32B
           | BeginStream     -- ^ Begins YAML stream.
           | EndStream       -- ^ Ends YAML stream.
           | Error           -- ^ Parsing error at this point.
-          -- For testing:.
-          | Unparsed        -- ^ The rest of the input at the error point.
-          | Test            -- ^ Test characters otherwise unassigned.
-          | Detected        -- ^ Detected parameter.
+          | Unparsed        -- ^ Unparsed due to errors (or at end of test).
+          | Detected        -- ^ Detected parameter (for testing).
   deriving Eq
 
 -- | @show code@ converts a 'Code' to the one-character YEAST token code char.
@@ -427,7 +425,6 @@ instance Show Code where
                    EndDocument     -> "o"
                    Error           -> "!"
                    Unparsed        -> "-"
-                   Test            -> "?"
                    Detected        -> "$"
 
 -- | Parsed token.
@@ -596,7 +593,7 @@ initialState name input = let (encoding, decoded) = decode input
                                      sCharOffset      = 0,
                                      sLine            = 1,
                                      sLineChar        = 0,
-                                     sCode            = Test,
+                                     sCode            = Unparsed,
                                      sLast            = ' ',
                                      sInput           = decoded }
 
@@ -1134,11 +1131,10 @@ indicator parser = token Indicator $ parser
 text :: (Match match result) => match -> Pattern
 text parser = token Text parser
 
--- | @nest code@ returns an empty token with the specified begin\/end /code/ to
--- signal nesting.
-nest :: Code -> Pattern
-nest code = finishToken & nestParser code
-  where nestParser code = Parser $ \ state ->
+-- | @emptyToken code@ returns an empty token.
+emptyToken :: Code -> Pattern
+emptyToken code = finishToken & parser code
+  where parser code = Parser $ \ state ->
           if state|>sIsPeek
              then returnReply state ()
              else tokenReply state Token { tByteOffset = state|>sByteOffset,
@@ -1147,6 +1143,25 @@ nest code = finishToken & nestParser code
                                            tLineChar   = state|>sLineChar,
                                            tCode       = code,
                                            tText       = "" }
+
+-- | @wrapTokens beginCode endCode parser@ wraps the specified /parser/ with
+-- matching /beginCode/ and /endCode/ tokens.
+wrapTokens :: Code -> Code -> Pattern -> Pattern
+wrapTokens beginCode endCode pattern = emptyToken beginCode
+                                      & prefixErrorWith pattern (emptyToken endCode)
+                                      & emptyToken endCode
+
+-- | @prefixErrorWith pattern prefix@ will invoke the @prefix@ parser if an
+-- error is detected during the @pattern@ parser, and then return the error.
+prefixErrorWith :: (Match match result) => match -> Pattern -> Parser result
+prefixErrorWith pattern prefix =
+  Parser $ \ state ->
+    let (Parser parser) = match pattern
+        reply = parser state
+    in case reply|>rResult of
+            Result _       -> reply
+            More more      -> reply { rResult = More $ prefixErrorWith more prefix }
+            Failed message -> reply { rResult = More $ prefix & (fail message :: Parser result) }
 
 -- * Production parameters
 
