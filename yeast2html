@@ -12,9 +12,9 @@ my $code2class = {
     U   => { code => 'U', type => 'bom',   title => "Byte order mark" },
     T   => { code => 'T', type => 'text',  title => "Content text" },
     t   => { code => 't', type => 'text',  title => "Non-content text" },
-    b   => { code => 'b', type => 'line',  title => "Non-content line break" },
-    L   => { code => 'L', type => 'line',  title => "Line break normalized to line feed" },
-    l   => { code => 'l', type => 'line',  title => "Line break folded to space" },
+    b   => { code => 'b', type => 'text',  title => "Non-content line break" },
+    L   => { code => 'L', type => 'text',  title => "Line break normalized to line feed" },
+    l   => { code => 'l', type => 'text',  title => "Line break folded to space" },
     I   => { code => 'I', type => 'text',  title => "Indicator character" },
     w   => { code => 'w', type => 'text',  title => "Non-content white space" },
     i   => { code => 'i', type => 'text',  title => "Indentation white space" },
@@ -401,7 +401,7 @@ sub print_text {
         } else {
             print $output "$text</span>";
         }
-        $pending_break = $class->{type} eq 'line';
+        $pending_break = $text =~ /&crarr;|&darr;/;
     }
     print $output "\n</div>\n";
 }
