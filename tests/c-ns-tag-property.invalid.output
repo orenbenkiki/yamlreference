@@ -5,4 +5,4 @@ I!
 # B: 1, C: 1, L: 1, c: 1
 g
 # B: 1, C: 1, L: 1, c: 1
-!Expected end of input
+!Unexpected '<'

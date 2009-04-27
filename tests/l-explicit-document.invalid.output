@@ -13,4 +13,4 @@ n
 # B: 3, C: 3, L: 1, c: 3
 b\x0a
 # B: 4, C: 4, L: 2, c: 0
-!Expected end of input
+!Unexpected '.'

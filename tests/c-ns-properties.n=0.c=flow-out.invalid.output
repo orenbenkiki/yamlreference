@@ -15,4 +15,4 @@ g
 # B: 2, C: 2, L: 1, c: 2
 p
 # B: 2, C: 2, L: 1, c: 2
-!Expected end of input
+!Unexpected '\x0a'

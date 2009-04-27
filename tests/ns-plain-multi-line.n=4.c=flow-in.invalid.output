@@ -9,4 +9,4 @@ i
 # B: 6, C: 6, L: 2, c: 4
 ?12
 # B: 8, C: 8, L: 2, c: 6
-!Expected end of input
+!Unexpected ','

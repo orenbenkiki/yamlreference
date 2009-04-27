@@ -25,4 +25,4 @@ q
 # B: 4, C: 4, L: 2, c: 0
 n
 # B: 4, C: 4, L: 2, c: 0
-!Expected end of input
+!Unexpected ' '

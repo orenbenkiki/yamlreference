@@ -7,4 +7,4 @@ i
 # B: 7, C: 7, L: 2, c: 4
 ?12
 # B: 9, C: 9, L: 2, c: 6
-!Expected end of input
+!Unexpected ','

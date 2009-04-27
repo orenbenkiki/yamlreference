@@ -45,6 +45,10 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/b-chomped-last.t=keep.output
                      tests/b-chomped-last.t=strip.input
                      tests/b-chomped-last.t=strip.output
+                     tests/b-comment.eof.input tests/b-comment.eof.output
+                     tests/b-comment.invalid.input
+                     tests/b-comment.invalid.output tests/b-comment.lf.input
+                     tests/b-comment.lf.output
                      tests/b-l-folded.n=4.c=flow-in.as-space.input
                      tests/b-l-folded.n=4.c=flow-in.as-space.output
                      tests/b-l-folded.n=4.c=flow-in.invalid.input
@@ -476,6 +480,7 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/l-chomped-empty.n=4.t=keep.output
                      tests/l-chomped-empty.n=4.t=strip.input
                      tests/l-chomped-empty.n=4.t=strip.output
+                     tests/l-comment.break.input tests/l-comment.break.output
                      tests/l-comment.empty.input tests/l-comment.empty.output
                      tests/l-comment.invalid.input
                      tests/l-comment.invalid.output
@@ -576,6 +581,10 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/l-yaml-stream.empty.output
                      tests/l-yaml-stream.explicit.input
                      tests/l-yaml-stream.explicit.output
+                     tests/l-yaml-stream.map-no-eof.input
+                     tests/l-yaml-stream.map-no-eof.output
+                     tests/l-yaml-stream.plain-no-eof.input
+                     tests/l-yaml-stream.plain-no-eof.output
                      tests/l-yaml-stream.unparsed-docs.input
                      tests/l-yaml-stream.unparsed-docs.output
                      tests/l-yaml-stream.unparsed-map.input
@@ -1019,7 +1028,9 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/ns-yaml-directive.output tests/ns-yaml-version.input
                      tests/ns-yaml-version.invalid.input
                      tests/ns-yaml-version.invalid.output
-                     tests/ns-yaml-version.output tests/s-b-comment.empty.input
+                     tests/ns-yaml-version.output tests/s-b-comment.break.input
+                     tests/s-b-comment.break.output
+                     tests/s-b-comment.empty.input
                      tests/s-b-comment.empty.output
                      tests/s-b-comment.invalid.input
                      tests/s-b-comment.invalid.output
@@ -1192,8 +1203,6 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/s-separate-in-line.sp.output
                      tests/s-separate-lines.n=4.invalid.input
                      tests/s-separate-lines.n=4.invalid.output
-                     tests/s-separate-lines.n=4.lines.input
-                     tests/s-separate-lines.n=4.lines.output
                      tests/s-separate-lines.n=4.sol.input
                      tests/s-separate-lines.n=4.sol.output
                      tests/s-separate-lines.n=4.sp.input
@@ -1206,8 +1215,6 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/s-separate.n=4.c=flow-key.sp.output
                      tests/s-separate.n=4.c=flow-out.empty.input
                      tests/s-separate.n=4.c=flow-out.empty.output
-                     tests/s-separate.n=4.c=flow-out.line.input
-                     tests/s-separate.n=4.c=flow-out.line.output
                      tests/s-separate.n=4.c=flow-out.sp.input
                      tests/s-separate.n=4.c=flow-out.sp.output
                      tests/s-single-next-line.n=4.input

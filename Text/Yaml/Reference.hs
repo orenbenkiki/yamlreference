@@ -951,7 +951,7 @@ eof :: Pattern
 eof = Parser $ \ state ->
   if state|>sInput == []
      then returnReply state ()
-     else failReply state "Expected end of input"
+     else unexpectedReply state
 
 -- | @sol@ matches the start of a line.
 sol :: Pattern
@@ -1324,6 +1324,7 @@ tokenizers = PAR(c_chomping_indicator) "t"
            $ PAT(b_char)
            $ PAT(b_line_feed)
            $ PAT(b_non_content)
+           $ PAT(b_comment)
            $ PAT(c_alias)
            $ PAT(c_anchor)
            $ PAT(c_byte_order_mark)

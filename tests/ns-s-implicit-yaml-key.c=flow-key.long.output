@@ -11,4 +11,4 @@ n
 # B: 1023, C: 1023, L: 1, c: 1023
 w 
 # B: 1024, C: 1024, L: 1, c: 1024
-!Expected end of input
+!Unexpected 'X'
