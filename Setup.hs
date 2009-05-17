@@ -1,6 +1,6 @@
 import Distribution.Simple
 import System.Cmd
-main = defaultMainWithHooks $ defaultUserHooks { runTests = run, preClean = clean }
+main = defaultMainWithHooks $ simpleUserHooks { runTests = run, preClean = clean }
     where run _ _ _ _ = do
             system "dist/build/yaml2yeast-test/yaml2yeast-test tests"
             return ()

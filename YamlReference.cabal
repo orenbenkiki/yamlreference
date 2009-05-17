@@ -1,6 +1,6 @@
 Name:                YamlReference
 Version:             0.9.3
-Cabal-Version:       >= 1.2
+Cabal-Version:       >= 1.6
 License:             LGPL
 License-File:        lgpl.txt
 Copyright:           Oren Ben-Kiki 2007, 2008
