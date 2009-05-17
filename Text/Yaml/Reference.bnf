@@ -225,7 +225,6 @@ ns_tag_directive {- 88 -} = meta [ 'T', 'A', 'G' ] ! "directive"
 
 -- 6.8.2.1 Tag Handles
 
-{- TODO -}
 c_tag_handle {- 89 -} = c_named_tag_handle
                       / c_secondary_tag_handle
                       / c_primary_tag_handle
