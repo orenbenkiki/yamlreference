@@ -158,10 +158,10 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/c-flow-mapping.n=4.c=flow-in.spaced.output
                      tests/c-flow-sequence.n=4.c=flow-in.compact.input
                      tests/c-flow-sequence.n=4.c=flow-in.compact.output
-                     tests/c-flow-sequence.n=4.c=flow-in.::.input
+                     tests/c-flow-sequence.n=4.c=flow-in.colons.input
                      tests/c-flow-sequence.n=4.c=flow-in.invalid.input
                      tests/c-flow-sequence.n=4.c=flow-in.invalid.output
-                     tests/c-flow-sequence.n=4.c=flow-in.::.output
+                     tests/c-flow-sequence.n=4.c=flow-in.colons.output
                      tests/c-flow-sequence.n=4.c=flow-in.spaced.input
                      tests/c-flow-sequence.n=4.c=flow-in.spaced.output
                      tests/c-folded.input tests/c-folded.output
@@ -868,14 +868,14 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/ns-plain.n=1.c=flow-key.dc.output
                      tests/ns-plain.n=1.c=flow-key.ds.input
                      tests/ns-plain.n=1.c=flow-key.ds.output
-                     tests/ns-plain.n=1.c=flow-key.::.input
+                     tests/ns-plain.n=1.c=flow-key.colons.input
                      tests/ns-plain.n=1.c=flow-key.ka.input
                      tests/ns-plain.n=1.c=flow-key.ka.output
                      tests/ns-plain.n=1.c=flow-key.kc.input
                      tests/ns-plain.n=1.c=flow-key.kc.output
                      tests/ns-plain.n=1.c=flow-key.ks.input
                      tests/ns-plain.n=1.c=flow-key.ks.output
-                     tests/ns-plain.n=1.c=flow-key.::.output
+                     tests/ns-plain.n=1.c=flow-key.colons.output
                      tests/ns-plain.n=1.c=flow-key.va.input
                      tests/ns-plain.n=1.c=flow-key.va.output
                      tests/ns-plain.n=1.c=flow-key.vc.input
