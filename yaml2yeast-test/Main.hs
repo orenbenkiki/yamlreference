@@ -36,8 +36,10 @@
 module Main (main) where
 
 import           Control.Monad
+import           Control.Monad.State
+import           Control.Monad.Trans
 import qualified Data.ByteString.Lazy.Char8 as C
-import qualified Data.HashTable as Hash
+import qualified Data.HashMap as Hash
 import           System.Directory
 import           System.Environment
 import           System.Exit
@@ -47,19 +49,15 @@ import           Text.Regex
 import           Text.Yaml.Reference
 
 -- | Map each tokenizer name to whether a test for it was seen.
-type Seen = Hash.HashTable String Bool
+type Seen = Hash.Map String Bool
 
--- | @allTokenizers@ returns a hash table populated with all known tokenizers
--- where each has the initial value of @False@.
-allTokenizers :: IO Seen
-allTokenizers = do hash <- Hash.new (==) Hash.hashString
-                   mapM (\name -> Hash.insert hash name False) tokenizerNames
-                   return hash
+-- | The type of the test runner program.
+type TestsRunner = StateT Seen IO
 
 -- | @reportMissing seen@ reports the productions (tokenizers) which were not
 -- /seen/ and returns their number.
 reportMissing :: Seen -> IO Int
-reportMissing seen = do list <- Hash.toList seen
+reportMissing seen = do let list = Hash.toList seen
                         missing <- foldM reportTest 0 list
                         if missing > 0
                            then hPutStrLn stderr $ "Missing: " ++ (show missing)
@@ -93,8 +91,8 @@ instance Show TestType where
 
 -- | @isTestInputFile file@ returns whether the specified /file/ is a test
 -- input file (ends with \"@.input@\").
-isTestInputFile :: FilePath -> IO Bool
-isTestInputFile file = do isFile <- doesFileExist file
+isTestInputFile :: FilePath -> TestsRunner Bool
+isTestInputFile file = do isFile <- (lift . doesFileExist) file
                           if not isFile
                              then return False
                              else case matchRegex (mkRegex "\\.input$") file of
@@ -181,40 +179,41 @@ assertTest inputFile =
 
 -- | @fileTest seen file@ wraps @assertTest@ in a test case named after the
 -- /file/ and marks it as /seen/.
-fileTest :: Seen -> FilePath -> IO Test
-fileTest seen file = do Hash.update seen (testProduction file) True
-                        return $ TestLabel file $ TestCase $ assertTest file
+fileTest :: FilePath -> TestsRunner Test
+fileTest file = do seen <- get
+                   put $ Hash.adjust (const True) (testProduction file) seen
+                   return $ TestLabel file $ TestCase $ assertTest file
 
 -- | @directoryTestInputFiles directory@ returns the list of test input files
 -- contained in the /directory/.
-directoryTestInputFiles :: String -> IO [FilePath]
-directoryTestInputFiles directory = do entries <- getDirectoryContents directory
+directoryTestInputFiles :: String -> TestsRunner [FilePath]
+directoryTestInputFiles directory = do entries <- (lift . getDirectoryContents) directory
                                        filterM isTestInputFile $ map ((directory ++) . ("/" ++)) entries
 
 -- | @directoryTests seen directory@ returns the list of test cases contained
 -- in the /directory/, wrapped in a test case named after it, and updates the
 -- /seen/ hash.
-directoryTests :: Seen -> String -> IO Test
-directoryTests seen directory = do files <- directoryTestInputFiles directory
-                                   tests <- mapM (fileTest seen) files
-                                   return $ TestLabel directory $ TestList tests
+directoryTests :: String -> TestsRunner Test
+directoryTests directory = do files <- directoryTestInputFiles directory
+                              tests <- mapM fileTest files
+                              return $ TestLabel directory $ TestList tests
 
 -- | @allTests seen directories@ returns the list of test cases contained in
 -- the /directories/ (or \"@.@\" if none is specified), wrapped in a test case
 -- named @all@ if there is more than one directory, updating the /seen/ hash.
-allTests :: Seen -> [String] -> IO Test
-allTests seen directories = do case directories of
-                                    [] -> directoryTests seen "."
-                                    [directory] -> directoryTests seen directory
-                                    _ -> do tests <- mapM (directoryTests seen) directories
-                                            return $ TestLabel "all" $ TestList tests
+allTests :: [String] -> TestsRunner Test
+allTests directories = do case directories of
+                               [] -> directoryTests "."
+                               [directory] -> directoryTests directory
+                               _ -> do tests <- mapM directoryTests directories
+                                       return $ TestLabel "all" $ TestList tests
 
 -- | @main@ executes all the tests contained in the directories specified in
 -- the command line (or \"@.@\" if none is specified).
 main :: IO ()
 main = do directories <- getArgs
-          seen <- allTokenizers
-          tests <- allTests seen directories
+          let notSeen = Hash.fromList $ zip tokenizerNames $ repeat False
+          (tests, seen) <- runStateT (allTests directories) notSeen
           missing <- reportMissing seen
           results <- runTestTT tests
           case missing + (errors results) + (failures results) of

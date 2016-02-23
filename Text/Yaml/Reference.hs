@@ -683,6 +683,15 @@ unexpectedReply state = case state|>sInput of
                              ((_, char):_) -> failReply state $ "Unexpected '" ++ [char] ++ "'"
                              []            -> failReply state "Unexpected end of input"
 
+-- | Needed due to the Applicative Monad Proposal.
+instance Functor Parser where
+  fmap = liftM
+
+-- | Needed due to the Applicative Monad Proposal.
+instance Applicative Parser where
+  pure = return
+  (<*>) = ap
+
 -- | Allow using the @do@ notation for our parsers, which makes for short and
 -- sweet @do@ syntax when we want to examine the results (we typically don't).
 instance Monad Parser where

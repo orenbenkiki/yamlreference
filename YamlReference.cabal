@@ -1,14 +1,14 @@
 Name:                YamlReference
-Version:             0.9.3
+Version:             0.10.0
 Cabal-Version:       >= 1.6
 License:             LGPL
 License-File:        lgpl.txt
-Copyright:           Oren Ben-Kiki 2007, 2008
+Copyright:           Oren Ben-Kiki 2007, 2008, 2016
 Author:              Oren Ben-Kiki
 Maintainer:          yaml-oren@ben-kiki.org
 Stability:           alpha
 Homepage:            http://www.ben-kiki.org/oren/YamlReference
-Package-Url:         http://www.ben-kiki.org/oren/YamlReference/YamlReference-0.9.2.tar.gz
+Package-Url:         http://www.ben-kiki.org/oren/YamlReference/YamlReference-0.10.0.tar.gz
 Category:            Text
 Synopsis:            YAML reference implementation
 Build-Type:          Custom
@@ -1241,7 +1241,8 @@ Library
     Build-Depends:       HUnit >= 1.1, regex-compat >= 0.71, dlist >= 0.2
     if impl(ghc >= 6.10.0)
         Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
-                         FlexibleInstances, TypeSynonymInstances, PostfixOperators
+                         FlexibleInstances, TypeSynonymInstances, PostfixOperators,
+                         FlexibleContexts
     else
         Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
                          FlexibleInstances, TypeSynonymInstances
@@ -1251,7 +1252,8 @@ Executable yaml2yeast
     Main-Is:             Main.hs
     if impl(ghc >= 6.10.0)
         Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
-                         FlexibleInstances, TypeSynonymInstances, PostfixOperators
+                         FlexibleInstances, TypeSynonymInstances, PostfixOperators,
+                         FlexibleContexts
     else
         Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
                          FlexibleInstances, TypeSynonymInstances
@@ -1259,9 +1261,11 @@ Executable yaml2yeast
 Executable yaml2yeast-test
     Hs-Source-Dirs:      yaml2yeast-test .
     Main-Is:             Main.hs
+    Build-Depends:       hashmap, mtl
     if impl(ghc >= 6.10.0)
         Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
-                         FlexibleInstances, TypeSynonymInstances, PostfixOperators
+                         FlexibleInstances, TypeSynonymInstances, PostfixOperators,
+                         FlexibleContexts, ScopedTypeVariables
     else
         Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
                          FlexibleInstances, TypeSynonymInstances
