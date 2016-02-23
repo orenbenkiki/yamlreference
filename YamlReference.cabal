@@ -1229,45 +1229,26 @@ Extra-Source-Files:  Text/Yaml/Reference.bnf yeast2html yaml2yeast.css
                      tests/s-white.sp.output tests/s-white.tab.input
                      tests/s-white.tab.output
 
-Flag small_base
-    Description:         Choose the new smaller, split-up base package.
-
 Library
     Exposed-Modules:     Text.Yaml.Reference
-    if flag(small_base)
-        Build-Depends:   base >= 3, containers, bytestring
-    else
-        Build-Depends:   base < 3
+    Build-Depends:       base >= 3, containers, bytestring
     Build-Depends:       HUnit >= 1.1, regex-compat >= 0.71, dlist >= 0.2
-    if impl(ghc >= 6.10.0)
-        Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
+    Extensions:          CPP, MultiParamTypeClasses, FunctionalDependencies,
                          FlexibleInstances, TypeSynonymInstances, PostfixOperators,
                          FlexibleContexts
-    else
-        Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
-                         FlexibleInstances, TypeSynonymInstances
 
 Executable yaml2yeast
     Hs-Source-Dirs:      yaml2yeast .
     Main-Is:             Main.hs
-    if impl(ghc >= 6.10.0)
-        Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
+    Extensions:          CPP, MultiParamTypeClasses, FunctionalDependencies,
                          FlexibleInstances, TypeSynonymInstances, PostfixOperators,
                          FlexibleContexts
-    else
-        Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
-                         FlexibleInstances, TypeSynonymInstances
 
-Executable yaml2yeast-test
+Test-Suite yaml2yeast-test
+    Type:                exitcode-stdio-1.0
     Hs-Source-Dirs:      yaml2yeast-test .
     Main-Is:             Main.hs
-    Build-Depends:       hashmap, mtl
-    if impl(ghc >= 6.10.0)
-        Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
+    Build-Depends:       directory, hashmap, mtl
+    Extensions:          CPP, MultiParamTypeClasses, FunctionalDependencies,
                          FlexibleInstances, TypeSynonymInstances, PostfixOperators,
                          FlexibleContexts, ScopedTypeVariables
-    else
-        Extensions:      CPP, MultiParamTypeClasses, FunctionalDependencies,
-                         FlexibleInstances, TypeSynonymInstances
-    if flag(small_base)
-        Build-Depends:   directory

@@ -211,7 +211,10 @@ allTests directories = do case directories of
 -- | @main@ executes all the tests contained in the directories specified in
 -- the command line (or \"@.@\" if none is specified).
 main :: IO ()
-main = do directories <- getArgs
+main = do argDirectories <- getArgs
+          let directories = if argDirectories == []
+                            then [ "tests" ]
+                            else argDirectories
           let notSeen = Hash.fromList $ zip tokenizerNames $ repeat False
           (tests, seen) <- runStateT (allTests directories) notSeen
           missing <- reportMissing seen
