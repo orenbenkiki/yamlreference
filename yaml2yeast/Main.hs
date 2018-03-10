@@ -3,7 +3,7 @@
 -- Module      :  yaml2yeast
 -- Copyright   :  (c) Oren Ben-Kiki 2007
 -- License     :  LGPL
--- 
+--
 -- Maintainer  :  yaml-oren@ben-kiki.org
 -- Stability   :  alpha
 -- Portability :  portable

@@ -3,7 +3,7 @@
 -- Module      :  Text.Yaml.Reference
 -- Copyright   :  (c) Oren Ben-Kiki 2007
 -- License     :  LGPL
--- 
+--
 -- Maintainer  :  yaml-oren@ben-kiki.org
 -- Stability   :  alpha
 -- Portability :  portable
@@ -1560,7 +1560,7 @@ tokenizersWithT = PAT(b_chomped_last)
 -- argument) with the specified /name/ to a simple 'Tokenizer', or @Nothing@ if
 -- it isn't known.
 tokenizerWithT :: String -> Chomp -> Maybe Tokenizer
-tokenizerWithT name t = 
+tokenizerWithT name t =
   case Map.lookup name tokenizersWithT of
     Just tokenizer -> Just $ tokenizer t
     Nothing        -> Nothing
