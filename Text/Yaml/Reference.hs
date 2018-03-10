@@ -505,7 +505,7 @@ instance (Show result) => Show (Result result) where
                      Result result  -> "Result " ++ (show result)
                      More _         -> "More"
 
--- | Each invication of a 'Parser' yields a 'Reply'. The 'Result' is only one
+-- | Each invocation of a 'Parser' yields a 'Reply'. The 'Result' is only one
 -- part of the 'Reply'.
 data Reply result = Reply {
     rResult :: !(Result result), -- ^ Parsing result.

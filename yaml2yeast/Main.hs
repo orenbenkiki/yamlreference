@@ -48,7 +48,7 @@
 --
 --  [@U@] BOM, contains \"@TF8@\", \"@TF16LE@\" or \"@TF16BE@\"
 --
---  [@T@] Contains presrved content text characters
+--  [@T@] Contains preserved content text characters
 --
 --  [@t@] Contains non-content (meta) text characters
 --
@@ -149,7 +149,7 @@ import           Text.Yaml.Reference
 data Flag = Help                   -- ^ Request printing usage.
           | Output String          -- ^ Specify output file name.
           | Production String      -- ^ Specify start production name.
-          | Unbuffered             -- ^ Disable @stdout@ bufferting.
+          | Unbuffered             -- ^ Disable @stdout@ buffering.
           | Following              -- ^ Emit unparsed text following an error.
           | ParamN (Maybe Int)     -- ^ Specify $n$ parameter.
           | ParamT (Maybe Chomp)   -- ^ Specify $t$ parameter.
