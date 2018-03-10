@@ -3,7 +3,7 @@
 -- Module      :  Text.Yaml.Reference
 -- Copyright   :  (c) Oren Ben-Kiki 2007
 -- License     :  LGPL
--- 
+--
 -- Maintainer  :  yaml-oren@ben-kiki.org
 -- Stability   :  alpha
 -- Portability :  portable
@@ -505,7 +505,7 @@ instance (Show result) => Show (Result result) where
                      Result result  -> "Result " ++ (show result)
                      More _         -> "More"
 
--- | Each invication of a 'Parser' yields a 'Reply'. The 'Result' is only one
+-- | Each invocation of a 'Parser' yields a 'Reply'. The 'Result' is only one
 -- part of the 'Reply'.
 data Reply result = Reply {
     rResult :: !(Result result), -- ^ Parsing result.
@@ -1314,18 +1314,6 @@ commitBugs reply =
 yaml :: Tokenizer
 yaml = patternTokenizer l_yaml_stream
 
-#ifdef REAL_CPP
--- This is how non-ancient C pre-processor do it.
-#define STR(X) #X
-#else
--- This only works in GHC's simplistic GHC (and ancient C pre-processors).
-#define STR(X) "X"
-#endif
--- These allow us to avoid repeating the parser names.
-#define PAT(PATTERN) pat STR(PATTERN) PATTERN
-#define PAR(PARSER)  par STR(PARSER)  PARSER
-#define PAC(PARSER)  pac STR(PARSER)  PARSER
-
 -- | @pName name@ converts a parser name to the \"proper\" spec name.
 pName :: String -> String
 pName name = regexSub questionRegex "?"
@@ -1339,123 +1327,123 @@ pName name = regexSub questionRegex "?"
 -- | @tokenizers@ returns a mapping from a production name to a production
 -- tokenizer.
 tokenizers :: Map.Map String Tokenizer
-tokenizers = PAR(c_chomping_indicator) "t"
-           $ PAC(detect_inline_indentation) "m"
-           $ PAT(b_as_line_feed)
-           $ PAT(b_as_space)
-           $ PAT(b_carriage_return)
-           $ PAT(b_break)
-           $ PAT(b_char)
-           $ PAT(b_line_feed)
-           $ PAT(b_non_content)
-           $ PAT(b_comment)
-           $ PAT(c_alias)
-           $ PAT(c_anchor)
-           $ PAT(c_byte_order_mark)
-           $ PAT(c_collect_entry)
-           $ PAT(c_comment)
-           $ PAT(c_directive)
-           $ PAT(c_directives_end)
-           $ PAT(c_document_end)
-           $ PAT(c_double_quote)
-           $ PAT(c_escape)
-           $ PAT(c_flow_indicator)
-           $ PAT(c_folded)
-           $ PAT(c_forbidden)
-           $ PAT(c_indicator)
-           $ PAT(c_literal)
-           $ PAT(c_mapping_end)
-           $ PAT(c_mapping_key)
-           $ PAT(c_mapping_start)
-           $ PAT(c_mapping_value)
-           $ PAT(c_named_tag_handle)
-           $ PAT(c_nb_comment_text)
-           $ PAT(c_non_specific_tag)
-           $ PAT(c_ns_alias_node)
-           $ PAT(c_ns_anchor_property)
-           $ PAT(c_ns_esc_char)
-           $ PAT(c_ns_local_tag_prefix)
-           $ PAT(c_ns_shorthand_tag)
-           $ PAT(c_ns_tag_property)
-           $ PAT(c_primary_tag_handle)
-           $ PAT(c_printable)
-           $ PAT(c_quoted_quote)
-           $ PAT(c_reserved)
-           $ PAT(c_secondary_tag_handle)
-           $ PAT(c_sequence_end)
-           $ PAT(c_sequence_entry)
-           $ PAT(c_sequence_start)
-           $ PAT(c_single_quote)
-           $ PAT(c_tag)
-           $ PAT(c_tag_handle)
-           $ PAT(c_verbatim_tag)
-           $ PAT(e_node)
-           $ PAT(e_scalar)
-           $ PAT(l_any_document)
-           $ PAT(l_bare_document)
-           $ PAT(l_comment)
-           $ PAT(l_directive)
-           $ PAT(l_directives_document)
-           $ PAT(l_document_prefix)
-           $ PAT(l_document_suffix)
-           $ PAT(l_explicit_document)
-           $ PAT(l_yaml_stream)
-           $ PAT(nb_char)
-           $ PAT(nb_double_char)
-           $ PAT(nb_double_one_line)
-           $ PAT(nb_json)
-           $ PAT(nb_ns_double_in_line)
-           $ PAT(nb_ns_single_in_line)
-           $ PAT(nb_single_char)
-           $ PAT(nb_single_one_line)
-           $ PAT(ns_anchor_char)
-           $ PAT(ns_anchor_name)
-           $ PAT(ns_ascii_letter)
-           $ PAT(ns_char)
-           $ PAT(ns_dec_digit)
-           $ PAT(ns_directive_name)
-           $ PAT(ns_directive_parameter)
-           $ PAT(ns_double_char)
-           $ PAT(ns_esc_16_bit)
-           $ PAT(ns_esc_32_bit)
-           $ PAT(ns_esc_8_bit)
-           $ PAT(ns_esc_backslash)
-           $ PAT(ns_esc_backspace)
-           $ PAT(ns_esc_bell)
-           $ PAT(ns_esc_carriage_return)
-           $ PAT(ns_esc_double_quote)
-           $ PAT(ns_esc_escape)
-           $ PAT(ns_esc_form_feed)
-           $ PAT(ns_esc_horizontal_tab)
-           $ PAT(ns_esc_line_feed)
-           $ PAT(ns_esc_line_separator)
-           $ PAT(ns_esc_next_line)
-           $ PAT(ns_esc_non_breaking_space)
-           $ PAT(ns_esc_null)
-           $ PAT(ns_esc_paragraph_separator)
-           $ PAT(ns_esc_slash)
-           $ PAT(ns_esc_space)
-           $ PAT(ns_esc_vertical_tab)
-           $ PAT(ns_global_tag_prefix)
-           $ PAT(ns_hex_digit)
-           $ PAT(ns_plain_safe_in)
-           $ PAT(ns_plain_safe_out)
-           $ PAT(ns_reserved_directive)
-           $ PAT(ns_s_block_map_implicit_key)
-           $ PAT(ns_single_char)
-           $ PAT(ns_tag_char)
-           $ PAT(ns_tag_directive)
-           $ PAT(ns_tag_prefix)
-           $ PAT(ns_uri_char)
-           $ PAT(ns_word_char)
-           $ PAT(ns_yaml_directive)
-           $ PAT(ns_yaml_version)
-           $ PAT(s_b_comment)
-           $ PAT(s_l_comments)
-           $ PAT(s_separate_in_line)
-           $ PAT(s_space)
-           $ PAT(s_tab)
-           $ PAT(s_white)
+tokenizers = par "c_chomping_indicator" c_chomping_indicator "t"
+           $ pac "detect_inline_indentation" detect_inline_indentation "m"
+           $ pat "b_as_line_feed" b_as_line_feed
+           $ pat "b_as_space" b_as_space
+           $ pat "b_carriage_return" b_carriage_return
+           $ pat "b_break" b_break
+           $ pat "b_char" b_char
+           $ pat "b_line_feed" b_line_feed
+           $ pat "b_non_content" b_non_content
+           $ pat "b_comment" b_comment
+           $ pat "c_alias" c_alias
+           $ pat "c_anchor" c_anchor
+           $ pat "c_byte_order_mark" c_byte_order_mark
+           $ pat "c_collect_entry" c_collect_entry
+           $ pat "c_comment" c_comment
+           $ pat "c_directive" c_directive
+           $ pat "c_directives_end" c_directives_end
+           $ pat "c_document_end" c_document_end
+           $ pat "c_double_quote" c_double_quote
+           $ pat "c_escape" c_escape
+           $ pat "c_flow_indicator" c_flow_indicator
+           $ pat "c_folded" c_folded
+           $ pat "c_forbidden" c_forbidden
+           $ pat "c_indicator" c_indicator
+           $ pat "c_literal" c_literal
+           $ pat "c_mapping_end" c_mapping_end
+           $ pat "c_mapping_key" c_mapping_key
+           $ pat "c_mapping_start" c_mapping_start
+           $ pat "c_mapping_value" c_mapping_value
+           $ pat "c_named_tag_handle" c_named_tag_handle
+           $ pat "c_nb_comment_text" c_nb_comment_text
+           $ pat "c_non_specific_tag" c_non_specific_tag
+           $ pat "c_ns_alias_node" c_ns_alias_node
+           $ pat "c_ns_anchor_property" c_ns_anchor_property
+           $ pat "c_ns_esc_char" c_ns_esc_char
+           $ pat "c_ns_local_tag_prefix" c_ns_local_tag_prefix
+           $ pat "c_ns_shorthand_tag" c_ns_shorthand_tag
+           $ pat "c_ns_tag_property" c_ns_tag_property
+           $ pat "c_primary_tag_handle" c_primary_tag_handle
+           $ pat "c_printable" c_printable
+           $ pat "c_quoted_quote" c_quoted_quote
+           $ pat "c_reserved" c_reserved
+           $ pat "c_secondary_tag_handle" c_secondary_tag_handle
+           $ pat "c_sequence_end" c_sequence_end
+           $ pat "c_sequence_entry" c_sequence_entry
+           $ pat "c_sequence_start" c_sequence_start
+           $ pat "c_single_quote" c_single_quote
+           $ pat "c_tag" c_tag
+           $ pat "c_tag_handle" c_tag_handle
+           $ pat "c_verbatim_tag" c_verbatim_tag
+           $ pat "e_node" e_node
+           $ pat "e_scalar" e_scalar
+           $ pat "l_any_document" l_any_document
+           $ pat "l_bare_document" l_bare_document
+           $ pat "l_comment" l_comment
+           $ pat "l_directive" l_directive
+           $ pat "l_directives_document" l_directives_document
+           $ pat "l_document_prefix" l_document_prefix
+           $ pat "l_document_suffix" l_document_suffix
+           $ pat "l_explicit_document" l_explicit_document
+           $ pat "l_yaml_stream" l_yaml_stream
+           $ pat "nb_char" nb_char
+           $ pat "nb_double_char" nb_double_char
+           $ pat "nb_double_one_line" nb_double_one_line
+           $ pat "nb_json" nb_json
+           $ pat "nb_ns_double_in_line" nb_ns_double_in_line
+           $ pat "nb_ns_single_in_line" nb_ns_single_in_line
+           $ pat "nb_single_char" nb_single_char
+           $ pat "nb_single_one_line" nb_single_one_line
+           $ pat "ns_anchor_char" ns_anchor_char
+           $ pat "ns_anchor_name" ns_anchor_name
+           $ pat "ns_ascii_letter" ns_ascii_letter
+           $ pat "ns_char" ns_char
+           $ pat "ns_dec_digit" ns_dec_digit
+           $ pat "ns_directive_name" ns_directive_name
+           $ pat "ns_directive_parameter" ns_directive_parameter
+           $ pat "ns_double_char" ns_double_char
+           $ pat "ns_esc_16_bit" ns_esc_16_bit
+           $ pat "ns_esc_32_bit" ns_esc_32_bit
+           $ pat "ns_esc_8_bit" ns_esc_8_bit
+           $ pat "ns_esc_backslash" ns_esc_backslash
+           $ pat "ns_esc_backspace" ns_esc_backspace
+           $ pat "ns_esc_bell" ns_esc_bell
+           $ pat "ns_esc_carriage_return" ns_esc_carriage_return
+           $ pat "ns_esc_double_quote" ns_esc_double_quote
+           $ pat "ns_esc_escape" ns_esc_escape
+           $ pat "ns_esc_form_feed" ns_esc_form_feed
+           $ pat "ns_esc_horizontal_tab" ns_esc_horizontal_tab
+           $ pat "ns_esc_line_feed" ns_esc_line_feed
+           $ pat "ns_esc_line_separator" ns_esc_line_separator
+           $ pat "ns_esc_next_line" ns_esc_next_line
+           $ pat "ns_esc_non_breaking_space" ns_esc_non_breaking_space
+           $ pat "ns_esc_null" ns_esc_null
+           $ pat "ns_esc_paragraph_separator" ns_esc_paragraph_separator
+           $ pat "ns_esc_slash" ns_esc_slash
+           $ pat "ns_esc_space" ns_esc_space
+           $ pat "ns_esc_vertical_tab" ns_esc_vertical_tab
+           $ pat "ns_global_tag_prefix" ns_global_tag_prefix
+           $ pat "ns_hex_digit" ns_hex_digit
+           $ pat "ns_plain_safe_in" ns_plain_safe_in
+           $ pat "ns_plain_safe_out" ns_plain_safe_out
+           $ pat "ns_reserved_directive" ns_reserved_directive
+           $ pat "ns_s_block_map_implicit_key" ns_s_block_map_implicit_key
+           $ pat "ns_single_char" ns_single_char
+           $ pat "ns_tag_char" ns_tag_char
+           $ pat "ns_tag_directive" ns_tag_directive
+           $ pat "ns_tag_prefix" ns_tag_prefix
+           $ pat "ns_uri_char" ns_uri_char
+           $ pat "ns_word_char" ns_word_char
+           $ pat "ns_yaml_directive" ns_yaml_directive
+           $ pat "ns_yaml_version" ns_yaml_version
+           $ pat "s_b_comment" s_b_comment
+           $ pat "s_l_comments" s_l_comments
+           $ pat "s_separate_in_line" s_separate_in_line
+           $ pat "s_space" s_space
+           $ pat "s_tab" s_tab
+           $ pat "s_white" s_white
            $ Map.empty
   where pat name pattern     = Map.insert (pName name) $ patternTokenizer     (match pattern)
         par name parser what = Map.insert (pName name) $ parserTokenizer what (match parser)
@@ -1469,50 +1457,50 @@ tokenizer name = Map.lookup name tokenizers
 -- | @tokenizersWithN@ returns a mapping from a production name to a production
 -- tokenizer (that takes an /n/ argument).
 tokenizersWithN :: Map.Map String (Int -> Tokenizer)
-tokenizersWithN = PAR(c_b_block_header) "(m,t)"
-                $ PAC(detect_collection_indentation) "m"
-                $ PAC(detect_scalar_indentation) "m"
-                $ PAR(c_indentation_indicator) "m"
-                $ PAR(count_spaces) "m"
-                $ PAT(b_l_spaced)
-                $ PAT(b_nb_literal_next)
-                $ PAT(c_l_block_map_explicit_entry)
-                $ PAT(c_l_block_map_explicit_key)
-                $ PAT(c_l_block_map_implicit_value)
-                $ PAT(c_l_block_seq_entry)
-                $ PAT(c_l__folded)
-                $ PAT(c_l__literal)
-                $ PAT(l_block_map_explicit_value)
-                $ PAT(l__block_mapping)
-                $ PAT(l__block_sequence)
-                $ PAT(l_keep_empty)
-                $ PAT(l_nb_diff_lines)
-                $ PAT(l_nb_folded_lines)
-                $ PAT(l_nb_literal_text)
-                $ PAT(l_nb_same_lines)
-                $ PAT(l_nb_spaced_lines)
-                $ PAT(l_strip_empty)
-                $ PAT(l_trail_comments)
-                $ PAT(nb_double_multi_line)
-                $ PAT(nb_single_multi_line)
-                $ PAT(ns_l_block_map_entry)
-                $ PAT(ns_l_block_map_implicit_entry)
-                $ PAT(ns_l_in_line_mapping)
-                $ PAT(ns_l_in_line_sequence)
-                $ PAT(s_block_line_prefix)
-                $ PAT(s_double_break)
-                $ PAT(s_double_escaped)
-                $ PAT(s_double_next_line)
-                $ PAT(s_flow_folded)
-                $ PAT(s_flow_line_prefix)
-                $ PAT(s_indent)
-                $ PAT(s_indent_le)
-                $ PAT(s_indent_lt)
-                $ PAT(s_l__flow_in_block)
-                $ PAT(s_nb_folded_text)
-                $ PAT(s_nb_spaced_text)
-                $ PAT(s_separate_lines)
-                $ PAT(s_single_next_line)
+tokenizersWithN = par "c_b_block_header" c_b_block_header "(m,t)"
+                $ pac "detect_collection_indentation" detect_collection_indentation "m"
+                $ pac "detect_scalar_indentation" detect_scalar_indentation "m"
+                $ par "c_indentation_indicator" c_indentation_indicator "m"
+                $ par "count_spaces" count_spaces "m"
+                $ pat "b_l_spaced" b_l_spaced
+                $ pat "b_nb_literal_next" b_nb_literal_next
+                $ pat "c_l_block_map_explicit_entry" c_l_block_map_explicit_entry
+                $ pat "c_l_block_map_explicit_key" c_l_block_map_explicit_key
+                $ pat "c_l_block_map_implicit_value" c_l_block_map_implicit_value
+                $ pat "c_l_block_seq_entry" c_l_block_seq_entry
+                $ pat "c_l__folded" c_l__folded
+                $ pat "c_l__literal" c_l__literal
+                $ pat "l_block_map_explicit_value" l_block_map_explicit_value
+                $ pat "l__block_mapping" l__block_mapping
+                $ pat "l__block_sequence" l__block_sequence
+                $ pat "l_keep_empty" l_keep_empty
+                $ pat "l_nb_diff_lines" l_nb_diff_lines
+                $ pat "l_nb_folded_lines" l_nb_folded_lines
+                $ pat "l_nb_literal_text" l_nb_literal_text
+                $ pat "l_nb_same_lines" l_nb_same_lines
+                $ pat "l_nb_spaced_lines" l_nb_spaced_lines
+                $ pat "l_strip_empty" l_strip_empty
+                $ pat "l_trail_comments" l_trail_comments
+                $ pat "nb_double_multi_line" nb_double_multi_line
+                $ pat "nb_single_multi_line" nb_single_multi_line
+                $ pat "ns_l_block_map_entry" ns_l_block_map_entry
+                $ pat "ns_l_block_map_implicit_entry" ns_l_block_map_implicit_entry
+                $ pat "ns_l_in_line_mapping" ns_l_in_line_mapping
+                $ pat "ns_l_in_line_sequence" ns_l_in_line_sequence
+                $ pat "s_block_line_prefix" s_block_line_prefix
+                $ pat "s_double_break" s_double_break
+                $ pat "s_double_escaped" s_double_escaped
+                $ pat "s_double_next_line" s_double_next_line
+                $ pat "s_flow_folded" s_flow_folded
+                $ pat "s_flow_line_prefix" s_flow_line_prefix
+                $ pat "s_indent" s_indent
+                $ pat "s_indent_le" s_indent_le
+                $ pat "s_indent_lt" s_indent_lt
+                $ pat "s_l__flow_in_block" s_l__flow_in_block
+                $ pat "s_nb_folded_text" s_nb_folded_text
+                $ pat "s_nb_spaced_text" s_nb_spaced_text
+                $ pat "s_separate_lines" s_separate_lines
+                $ pat "s_single_next_line" s_single_next_line
                 $ Map.empty
   where pat name pattern     = Map.insert (pName name) (\ n -> patternTokenizer     (match   $ pattern n))
         par name parser what = Map.insert (pName name) (\ n -> parserTokenizer what (match   $ parser  n))
@@ -1530,13 +1518,13 @@ tokenizerWithN name n =
 -- | @tokenizersWithC@ returns a mapping from a production name to a production
 -- tokenizer (that takes a /c/ argument).
 tokenizersWithC :: Map.Map String (Context -> Tokenizer)
-tokenizersWithC = PAT(c_s_implicit_json_key)
-                $ PAT(nb_ns_plain_in_line)
-                $ PAT(ns_plain_char)
-                $ PAT(ns_plain_first)
-                $ PAT(ns_plain_one_line)
-                $ PAT(ns_plain_safe)
-                $ PAT(ns_s_implicit_yaml_key)
+tokenizersWithC = pat "c_s_implicit_json_key" c_s_implicit_json_key
+                $ pat "nb_ns_plain_in_line" nb_ns_plain_in_line
+                $ pat "ns_plain_char" ns_plain_char
+                $ pat "ns_plain_first" ns_plain_first
+                $ pat "ns_plain_one_line" ns_plain_one_line
+                $ pat "ns_plain_safe" ns_plain_safe
+                $ pat "ns_s_implicit_yaml_key" ns_s_implicit_yaml_key
                 $ Map.empty
   where pat name pattern = Map.insert (pName name) (\ c -> patternTokenizer (match $ pattern c))
 
@@ -1552,7 +1540,7 @@ tokenizerWithC name c =
 -- | @tokenizersWithT@ returns a mapping from a production name to a production
 -- tokenizer (that takes a /t/ argument).
 tokenizersWithT :: Map.Map String (Chomp -> Tokenizer)
-tokenizersWithT = PAT(b_chomped_last)
+tokenizersWithT = pat "b_chomped_last" b_chomped_last
                 $ Map.empty
   where pat name pattern = Map.insert (pName name) (\ t -> patternTokenizer (match $ pattern t))
 
@@ -1560,7 +1548,7 @@ tokenizersWithT = PAT(b_chomped_last)
 -- argument) with the specified /name/ to a simple 'Tokenizer', or @Nothing@ if
 -- it isn't known.
 tokenizerWithT :: String -> Chomp -> Maybe Tokenizer
-tokenizerWithT name t = 
+tokenizerWithT name t =
   case Map.lookup name tokenizersWithT of
     Just tokenizer -> Just $ tokenizer t
     Nothing        -> Nothing
@@ -1568,47 +1556,47 @@ tokenizerWithT name t =
 -- | @tokenizersWithNC@ returns a mapping from a production name to a
 -- production tokenizer (that requires /n/ and /c/ arguments).
 tokenizersWithNC :: Map.Map String (Int -> Context -> Tokenizer)
-tokenizersWithNC = PAT(b_l_folded)
-                 $ PAT(b_l_trimmed)
-                 $ PAT(c_double_quoted)
-                 $ PAT(c_flow_json_content)
-                 $ PAT(c_flow_json_node)
-                 $ PAT(c_flow_mapping)
-                 $ PAT(c_flow_sequence)
-                 $ PAT(c_ns_flow_map_adjacent_value)
-                 $ PAT(c_ns_flow_map_empty_key_entry)
-                 $ PAT(c_ns_flow_map_json_key_entry)
-                 $ PAT(c_ns_flow_map_separate_value)
-                 $ PAT(c_ns_flow_pair_json_key_entry)
-                 $ PAT(c_ns_properties)
-                 $ PAT(c_single_quoted)
-                 $ PAT(l_empty)
-                 $ PAT(nb_double_text)
-                 $ PAT(nb_single_text)
-                 $ PAT(ns_flow_content)
-                 $ PAT(ns_flow_map_entry)
-                 $ PAT(ns_flow_map_explicit_entry)
-                 $ PAT(ns_flow_map_implicit_entry)
-                 $ PAT(ns_flow_map_yaml_key_entry)
-                 $ PAT(ns_flow_node)
-                 $ PAT(ns_flow_pair)
-                 $ PAT(ns_flow_pair_entry)
-                 $ PAT(ns_flow_pair_yaml_key_entry)
-                 $ PAT(ns_flow_seq_entry)
-                 $ PAT(ns_flow_yaml_content)
-                 $ PAT(ns_flow_yaml_node)
-                 $ PAT(ns_plain)
-                 $ PAT(ns_plain_multi_line)
-                 $ PAT(ns_s_flow_map_entries)
-                 $ PAT(ns_s_flow_seq_entries)
-                 $ PAT(s_l__block_collection)
-                 $ PAT(s_l__block_in_block)
-                 $ PAT(s_l__block_indented)
-                 $ PAT(s_l__block_node)
-                 $ PAT(s_l__block_scalar)
-                 $ PAT(s_line_prefix)
-                 $ PAT(s_ns_plain_next_line)
-                 $ PAT(s_separate)
+tokenizersWithNC = pat "b_l_folded" b_l_folded
+                 $ pat "b_l_trimmed" b_l_trimmed
+                 $ pat "c_double_quoted" c_double_quoted
+                 $ pat "c_flow_json_content" c_flow_json_content
+                 $ pat "c_flow_json_node" c_flow_json_node
+                 $ pat "c_flow_mapping" c_flow_mapping
+                 $ pat "c_flow_sequence" c_flow_sequence
+                 $ pat "c_ns_flow_map_adjacent_value" c_ns_flow_map_adjacent_value
+                 $ pat "c_ns_flow_map_empty_key_entry" c_ns_flow_map_empty_key_entry
+                 $ pat "c_ns_flow_map_json_key_entry" c_ns_flow_map_json_key_entry
+                 $ pat "c_ns_flow_map_separate_value" c_ns_flow_map_separate_value
+                 $ pat "c_ns_flow_pair_json_key_entry" c_ns_flow_pair_json_key_entry
+                 $ pat "c_ns_properties" c_ns_properties
+                 $ pat "c_single_quoted" c_single_quoted
+                 $ pat "l_empty" l_empty
+                 $ pat "nb_double_text" nb_double_text
+                 $ pat "nb_single_text" nb_single_text
+                 $ pat "ns_flow_content" ns_flow_content
+                 $ pat "ns_flow_map_entry" ns_flow_map_entry
+                 $ pat "ns_flow_map_explicit_entry" ns_flow_map_explicit_entry
+                 $ pat "ns_flow_map_implicit_entry" ns_flow_map_implicit_entry
+                 $ pat "ns_flow_map_yaml_key_entry" ns_flow_map_yaml_key_entry
+                 $ pat "ns_flow_node" ns_flow_node
+                 $ pat "ns_flow_pair" ns_flow_pair
+                 $ pat "ns_flow_pair_entry" ns_flow_pair_entry
+                 $ pat "ns_flow_pair_yaml_key_entry" ns_flow_pair_yaml_key_entry
+                 $ pat "ns_flow_seq_entry" ns_flow_seq_entry
+                 $ pat "ns_flow_yaml_content" ns_flow_yaml_content
+                 $ pat "ns_flow_yaml_node" ns_flow_yaml_node
+                 $ pat "ns_plain" ns_plain
+                 $ pat "ns_plain_multi_line" ns_plain_multi_line
+                 $ pat "ns_s_flow_map_entries" ns_s_flow_map_entries
+                 $ pat "ns_s_flow_seq_entries" ns_s_flow_seq_entries
+                 $ pat "s_l__block_collection" s_l__block_collection
+                 $ pat "s_l__block_in_block" s_l__block_in_block
+                 $ pat "s_l__block_indented" s_l__block_indented
+                 $ pat "s_l__block_node" s_l__block_node
+                 $ pat "s_l__block_scalar" s_l__block_scalar
+                 $ pat "s_line_prefix" s_line_prefix
+                 $ pat "s_ns_plain_next_line" s_ns_plain_next_line
+                 $ pat "s_separate" s_separate
                  $ Map.empty
   where pat name pattern = Map.insert (pName name) (\ n c -> patternTokenizer (match $ pattern n c))
 
@@ -1624,9 +1612,9 @@ tokenizerWithNC name n c =
 -- | @tokenizersWithNT@ returns a mapping from a production name to a
 -- production tokenizer (that requires /n/ and /t/ arguments).
 tokenizersWithNT :: Map.Map String (Int -> Chomp -> Tokenizer)
-tokenizersWithNT = PAT(l_chomped_empty)
-                 $ PAT(l_folded_content)
-                 $ PAT(l_literal_content)
+tokenizersWithNT = pat "l_chomped_empty" l_chomped_empty
+                 $ pat "l_folded_content" l_folded_content
+                 $ pat "l_literal_content" l_literal_content
                  $ Map.empty
   where pat name pattern = Map.insert (pName name) (\ n t -> patternTokenizer (match $ pattern n t))
 
