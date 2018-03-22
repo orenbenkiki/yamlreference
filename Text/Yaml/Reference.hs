@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP, FlexibleContexts, FlexibleInstances, FunctionalDependencies, PostfixOperators #-}
+
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Text.Yaml.Reference
