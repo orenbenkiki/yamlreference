@@ -1,0 +1,17 @@
+language: generic
+
+matrix:
+  include:
+    - os: osx
+
+before_install:
+  - brew install ghc
+  - brew install cabal-install
+  - cabal update
+
+script:
+  >
+    cabal install --only-dependencies --enable-tests &&
+    cabal configure &&
+    cabal build &&
+    cabal test
