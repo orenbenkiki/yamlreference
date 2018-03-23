@@ -703,13 +703,12 @@ instance Monad Parser where
 
   -- @left >>= right@ applies the /left/ parser, and if it didn't fail
   -- applies the /right/ one (well, the one /right/ returns).
-  left >>= right = bindParser left right
-                   where bindParser (Parser left) right = Parser $ \ state ->
-                           let reply = left state
-                           in case reply|>rResult of
-                                   Failed message -> reply { rResult = Failed message }
-                                   Result value   -> reply { rResult = More $ right value }
-                                   More parser    -> reply { rResult = More $ bindParser parser right }
+  (Parser left) >>= right = Parser $ \ state ->
+                            let reply = left state
+                            in case reply|>rResult of
+                                    Failed message -> reply { rResult = Failed message }
+                                    Result value   -> reply { rResult = More $ right value }
+                                    More parser    -> reply { rResult = More $ parser >>= right }
 
   -- @fail message@ does just that - fails with a /message/.
   fail message = Parser $ \ state -> failReply state message
