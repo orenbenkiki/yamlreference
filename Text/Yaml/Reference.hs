@@ -605,10 +605,6 @@ initialState name input = let (encoding, decoded) = decode input
 -- We need four setter functions to pass them around as arguments. For some
 -- reason, Haskell only generates getter functions.
 
--- | @setDecision name state@ sets the @sDecision@ field to /decision/.
-setDecision :: String -> State -> State
-setDecision decision state = state { sDecision = decision }
-
 -- | @setLimit limit state@ sets the @sLimit@ field to /limit/.
 setLimit :: Int -> State -> State
 setLimit limit state = state { sLimit = limit }
