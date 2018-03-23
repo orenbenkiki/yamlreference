@@ -810,7 +810,7 @@ parser - rejected = reject rejected Nothing & parser
 before & after = (match before) >> (match after)
 
 -- | @first \/ second@ tries to parse /first/, and failing that parses
--- /second/, unless /first/ has committed in which case is fails immediately.
+-- /second/, unless /first/ has committed in which case it fails immediately.
 (/) :: (Match match1 result, Match match2 result) => match1 -> match2 -> Parser result
 first / second = Parser $ \ state ->
   let Parser parser = decide (match first) (match second)
@@ -834,7 +834,7 @@ first / second = Parser $ \ state ->
 -- ** Basic parsers
 
 -- | @decide first second@ tries to parse /first/, and failing that parses
--- /second/, unless /first/ has committed in which case is fails immediately.
+-- /second/, unless /first/ has committed in which case it fails immediately.
 decide :: Parser result -> Parser result -> Parser result
 decide left right = Parser $ \ state ->
   let Parser parser = decideParser state D.empty left right
