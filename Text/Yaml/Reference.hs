@@ -39,6 +39,7 @@ module Text.Yaml.Reference
   )
 where
 
+import           Control.Applicative (Applicative, pure, (<*>))
 import           Control.Monad
 import qualified Data.ByteString.Lazy.Char8 as C
 import           Data.Char
