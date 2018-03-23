@@ -847,11 +847,9 @@ decide left right = Parser $ \ state ->
                                                    rTokens = D.empty,
                                                    rResult = More right,
                                                    rCommit = Nothing }
-                  (Result _,   _)       -> reply { rTokens = tokens' reply }
-                  (More left', Just _)  -> reply { rTokens = tokens' reply,
-                                                   rResult = More left' }
                   (More left', Nothing) -> let Parser parser = decideParser point (tokens' reply) left' right
                                            in parser $ reply|>rState
+                  _                     -> reply { rTokens = tokens' reply }
 
 -- | @choice decision parser@ provides a /decision/ name to the choice about to
 -- be made in /parser/, to allow to @commit@ to it.
