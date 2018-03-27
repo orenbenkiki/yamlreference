@@ -792,7 +792,7 @@ parser ?! decision = peek parser & commit decision
 (<!) lookbehind = prev $ reject lookbehind Nothing
 
 -- | @lookahead >!@ matches the current point without consuming any characters
--- if it matches the lookahead parser (negative lookahead)
+-- if it does not match the lookahead parser (negative lookahead)
 (>!) :: (Match match result) => match -> Pattern
 (>!) lookahead = reject lookahead Nothing
 
