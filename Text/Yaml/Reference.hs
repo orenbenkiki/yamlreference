@@ -925,8 +925,7 @@ reject parser name = Parser $ \ state ->
 -- | @upto parser@ consumes all the character up to and not including the next
 -- point where the specified parser is a match.
 upto :: Pattern -> Pattern
-
-upto parser = ( ( parser >!) & nextIf (const True) *)
+upto parser = ( (parser >!) & nextIf (const True) *)
 
 -- | @nonEmpty parser@ succeeds if /parser/ matches some non-empty input
 -- characters at this point.
