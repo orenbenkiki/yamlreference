@@ -11,7 +11,7 @@ Homepage:            http://www.ben-kiki.org/oren/YamlReference
 Package-Url:         http://www.ben-kiki.org/oren/YamlReference/YamlReference-0.10.0.tar.gz
 Category:            Text
 Synopsis:            YAML reference implementation
-Build-Type:          Custom
+Build-Type:          Simple
 Description:         This package contains \"the\" reference YAML syntax parser
                      ("Text.Yaml.Reference"), generated directly from the YAML
                      specifications, as well as sample program (@yaml2yeast@)
@@ -1242,6 +1242,7 @@ Executable yaml2yeast
     Build-Depends:       base >= 4 && < 5, containers, bytestring,
                          regex-compat >= 0.71, dlist >= 0.2
     Main-Is:             Main.hs
+    Other-Modules:       Text.Yaml.Reference
     Extensions:          CPP, MultiParamTypeClasses, FunctionalDependencies,
                          FlexibleInstances, TypeSynonymInstances, PostfixOperators,
                          FlexibleContexts
@@ -1250,6 +1251,7 @@ Test-Suite yaml2yeast-test
     Type:                exitcode-stdio-1.0
     Hs-Source-Dirs:      yaml2yeast-test .
     Main-Is:             Main.hs
+    Other-Modules:       Text.Yaml.Reference
     Build-Depends:       base >= 4 && < 5, containers, directory, hashmap, mtl,
                          bytestring, regex-compat >= 0.71, dlist >= 0.2, HUnit >= 1.1
     Extensions:          CPP, MultiParamTypeClasses, FunctionalDependencies,
