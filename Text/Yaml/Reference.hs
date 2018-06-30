@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP, FlexibleContexts, FlexibleInstances, FunctionalDependencies, PostfixOperators #-}
+
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Text.Yaml.Reference
@@ -37,6 +39,7 @@ module Text.Yaml.Reference
   )
 where
 
+import           Control.Applicative (Applicative, pure, (<*>))
 import           Control.Monad
 import qualified Data.ByteString.Lazy.Char8 as C
 import           Data.Char
@@ -602,10 +605,6 @@ initialState name input = let (encoding, decoded) = decode input
 -- We need four setter functions to pass them around as arguments. For some
 -- reason, Haskell only generates getter functions.
 
--- | @setDecision name state@ sets the @sDecision@ field to /decision/.
-setDecision :: String -> State -> State
-setDecision decision state = state { sDecision = decision }
-
 -- | @setLimit limit state@ sets the @sLimit@ field to /limit/.
 setLimit :: Int -> State -> State
 setLimit limit state = state { sLimit = limit }
@@ -701,13 +700,12 @@ instance Monad Parser where
 
   -- @left >>= right@ applies the /left/ parser, and if it didn't fail
   -- applies the /right/ one (well, the one /right/ returns).
-  left >>= right = bindParser left right
-                   where bindParser (Parser left) right = Parser $ \ state ->
-                           let reply = left state
-                           in case reply|>rResult of
-                                   Failed message -> reply { rResult = Failed message }
-                                   Result value   -> reply { rResult = More $ right value }
-                                   More parser    -> reply { rResult = More $ bindParser parser right }
+  (Parser left) >>= right = Parser $ \ state ->
+                            let reply = left state
+                            in case reply|>rResult of
+                                    Failed message -> reply { rResult = Failed message }
+                                    Result value   -> reply { rResult = More $ right value }
+                                    More parser    -> reply { rResult = More $ parser >>= right }
 
   -- @fail message@ does just that - fails with a /message/.
   fail message = Parser $ \ state -> failReply state message
@@ -787,14 +785,14 @@ parser ?! decision = peek parser & commit decision
 (>?) :: (Match match result) => match -> Parser result
 (>?) lookahead = peek lookahead
 
--- | @lookbehind <?@ matches the current point without consuming any
+-- | @lookbehind <!@ matches the current point without consuming any
 -- characters, if the previous character does not match the lookbehind parser
 -- (single character negative lookbehind)
 (<!) :: (Match match result) => match -> Pattern
 (<!) lookbehind = prev $ reject lookbehind Nothing
 
--- | @lookahead >?@ matches the current point without consuming any characters
--- if it matches the lookahead parser (negative lookahead)
+-- | @lookahead >!@ matches the current point without consuming any characters
+-- if it does not match the lookahead parser (negative lookahead)
 (>!) :: (Match match result) => match -> Pattern
 (>!) lookahead = reject lookahead Nothing
 
@@ -809,7 +807,7 @@ parser - rejected = reject rejected Nothing & parser
 before & after = (match before) >> (match after)
 
 -- | @first \/ second@ tries to parse /first/, and failing that parses
--- /second/, unless /first/ has committed in which case is fails immediately.
+-- /second/, unless /first/ has committed in which case it fails immediately.
 (/) :: (Match match1 result, Match match2 result) => match1 -> match2 -> Parser result
 first / second = Parser $ \ state ->
   let Parser parser = decide (match first) (match second)
@@ -833,7 +831,7 @@ first / second = Parser $ \ state ->
 -- ** Basic parsers
 
 -- | @decide first second@ tries to parse /first/, and failing that parses
--- /second/, unless /first/ has committed in which case is fails immediately.
+-- /second/, unless /first/ has committed in which case it fails immediately.
 decide :: Parser result -> Parser result -> Parser result
 decide left right = Parser $ \ state ->
   let Parser parser = decideParser state D.empty left right
@@ -846,11 +844,9 @@ decide left right = Parser $ \ state ->
                                                    rTokens = D.empty,
                                                    rResult = More right,
                                                    rCommit = Nothing }
-                  (Result _,   _)       -> reply { rTokens = tokens' reply }
-                  (More left', Just _)  -> reply { rTokens = tokens' reply,
-                                                   rResult = More left' }
                   (More left', Nothing) -> let Parser parser = decideParser point (tokens' reply) left' right
                                            in parser $ reply|>rState
+                  _                     -> reply { rTokens = tokens' reply }
 
 -- | @choice decision parser@ provides a /decision/ name to the choice about to
 -- be made in /parser/, to allow to @commit@ to it.
@@ -929,8 +925,7 @@ reject parser name = Parser $ \ state ->
 -- | @upto parser@ consumes all the character up to and not including the next
 -- point where the specified parser is a match.
 upto :: Pattern -> Pattern
-
-upto parser = ( ( parser >!) & nextIf (const True) *)
+upto parser = ( (parser >!) & nextIf (const True) *)
 
 -- | @nonEmpty parser@ succeeds if /parser/ matches some non-empty input
 -- characters at this point.
