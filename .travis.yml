@@ -15,14 +15,7 @@ before_install:
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew install ghc cabal-install
     fi
-  - |
-    original_http_proxy="$http_proxy"
-    original_https_proxy="$https_proxy"
-    export http_proxy=hackage.haskell.org:80
-    export https_proxy=hackage.haskell.org:80
-    cabal update
-    export http_proxy="$original_http_proxy"
-    export https_proxy="$original_https_proxy"
+  - cabal update
 
 script: >
   cabal install --only-dependencies --enable-tests &&
