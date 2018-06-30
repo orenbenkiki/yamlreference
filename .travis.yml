@@ -10,16 +10,16 @@ before_install:
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get -qq update
       sudo apt-get install cabal-install
+      cabal update
     fi
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew install ghc cabal-install
+      cabal --http-transport=plain-http update
     fi
-  - cabal update
 
-script:
-  >
-    cabal install --only-dependencies --enable-tests &&
-    cabal configure --enable-tests &&
-    cabal build &&
-    cabal test
+script: >
+  cabal install --only-dependencies --enable-tests &&
+  cabal configure --enable-tests &&
+  cabal build &&
+  cabal test
