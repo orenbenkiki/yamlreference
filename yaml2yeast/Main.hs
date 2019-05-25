@@ -128,6 +128,8 @@
 --
 --  [@-@] Unparsed text following error point.
 --
+--  [@~@] Empty Token
+--
 -- In addition, the following code is used for testing partial productions
 -- and do not appear when parsing a complete YAML stream:
 --
