@@ -50,7 +50,7 @@ my $code2class = {
     o   => { code => 'o', type => 'end',   title => "Document" },
     '!' => { code => '!', type => 'error', title => "Error" },
     '-' => { code => '-', type => 'text',  title => "Unparsed" },
-    '$' => { code => '-', type => 'text',  title => "Detected" },
+    '$' => { code => '$', type => 'text',  title => "Detected" },
     '~' => { code => '~', type => 'text',  title => "Empty" }
 };
 
